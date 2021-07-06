@@ -2,36 +2,88 @@
 
 #include "Matrix/Vector/vector.h"
 #include <stdio.h>
+#include "Matrix/Core/error.h"
+#include "Matrix/Statemanager/INTERNAL/INTERNAL_statemanager.h"
+#include "Matrix/Statemanager/INTERNAL/INTERNAL_statemanager_data.h"
+
+void* a;
+int s = 0;
+
+void ac()
+{
+	printf("a created\n");
+}
+
+void ad()
+{
+	printf("a destroyed\n");
+
+}
+
+void ae()
+{
+	printf("a enter\n");
+	if (s == 0)
+	{
+		matrix_statemanager_state_enter("b", a);
+	}
+}
+
+void al()
+{
+	printf("a leave\n");
+}
+
+void bc()
+{
+	printf("b created\n");
+}
+
+void bd()
+{
+	printf("b destroyed\n");
+}
+
+void be()
+{
+	printf("b enter\n");
+	s = 1;
+}
+
+void bl()
+{
+	printf("b leave\n");
+}
 
 int main(const int argc, const char** const argv)
 {
-	Matrix_Vector* vec = matrix_vector_construct(sizeof(int), 0);
+	Matrix_Statemanager manager = matrix_statemanager_construct();
+	a = &manager;
 
-	int i = 12;
-	int ix = 123;
-	int ixx = 1234;
-	int ixxx = 12345;
-	int ii = 98;
-	int iix = 987;
-	int iixx = 9876;
-	int iixxx = 98765;
-	matrix_vector_push_back(&i, vec);
-	matrix_vector_push_back(&ix, vec);
-	matrix_vector_push_back(&ixx, vec);
-	matrix_vector_push_back(&ixxx, vec);
-	matrix_vector_push_back(&ii, vec);
-	matrix_vector_push_back(&iix, vec);
-	matrix_vector_push_back(&iixx, vec);
-	matrix_vector_push_back(&iixxx, vec);
+	Matrix_State sta = matrix_statemanager_state_construct();
+	sta.name = "a";
+	sta.on_creation = ac;
+	sta.on_destruction = ad;
+	sta.on_enter = ae;
+	sta.on_leave = al;
 
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 0, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 1, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 2, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 3, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 4, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 5, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 6, vec));
-	printf("%i\n", MTRX_VECTOR_AT_AS(int, 7, vec));
+	Matrix_State stb = matrix_statemanager_state_construct();
+	stb.name = "b";
+	stb.on_creation = bc;
+	stb.on_destruction = bd;
+	stb.on_enter = be;
+	stb.on_leave = bl;
 
-	matrix_vector_destruct(vec);
+	matrix_statemanager_state_push_default(sta, &manager);
+	matrix_statemanager_state_push(stb, &manager);
+
+	matrix_statemanager_state_enter_default(&manager);
+
+	matrix_statemanager_init(&manager);
+	matrix_statemanager_shutdown(&manager);
+
+	matrix_statemanager_state_destruct(&stb);
+	matrix_statemanager_state_destruct(&sta);
+
+	matrix_statemanager_destruct(&manager);
 }

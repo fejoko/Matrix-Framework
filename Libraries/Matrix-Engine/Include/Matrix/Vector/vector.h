@@ -26,7 +26,7 @@ void matrix_vector_resize(const size_t capacity, Matrix_Vector* const vector);
 
 //void matrix_vector_copy(Matrix_Vector* source, Matrix_Vector* destination);
 //void matrix_vector_copy_assign(Matrix_Vector* source, Matrix_Vector* destination);
-//void matrix_vector_move(Matrix_Vector* source, Matrix_Vector* destination);
+//Matrix_Vector* matrix_vector_move_construct(Matrix_Vector* source);
 //void matrix_vector_move_assign(Matrix_Vector* source, Matrix_Vector* destination);
 
 #define MTRX_VECTOR_AT_AS(type, index, vector) \

@@ -6,4 +6,5 @@ target_sources(Matrix
 add_subdirectory(Console)
 add_subdirectory(Core)
 add_subdirectory(Pch)
+add_subdirectory(Statemanager)
 add_subdirectory(Vector)

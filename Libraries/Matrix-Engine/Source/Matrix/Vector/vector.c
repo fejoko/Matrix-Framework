@@ -384,5 +384,43 @@ void matrix_vector_resize(const size_t capacity, Matrix_Vector* const vector)
 //void matrix_vector_swap(Matrix_Vector** vector1, Matrix_Vector** vector2);
 //void matrix_vector_copy(Matrix_Vector* source, Matrix_Vector* destination);
 //void matrix_vector_copy_assign(Matrix_Vector* source, Matrix_Vector* destination);
-//void matrix_vector_move(Matrix_Vector* source, Matrix_Vector* destination);
+
+//Matrix_Vector* matrix_vector_move_construct(Matrix_Vector* source)
+//{
+//	if (NULL == source)
+//	{
+//		MTRX_ERROR_UNEXPECTED_NULL;
+//	}
+//	else
+//	{
+//		Matrix_Vector* vector = malloc(sizeof(*vector));
+//		if (NULL == vector)
+//		{
+//			MTRX_ERROR_MALLOC_FAILED;
+//		}
+//		else
+//		{
+//			vector->element_size = source->element_size;
+//			vector->vector_capacity = source->vector_capacity;
+//
+//			if (source->vector_capacity < 1)
+//			{
+//				vector->vector_data = NULL;
+//			}
+//			else
+//			{
+//				vector->vector_data = malloc(source->element_size * source->vector_capacity);
+//				if (NULL == vector->vector_data)
+//				{
+//					MTRX_ERROR_MALLOC_FAILED;
+//				}
+//				else
+//				{
+//					return vector;
+//				}
+//			}
+//		}
+//	}
+//}
+
 //void matrix_vector_move_assign(Matrix_Vector* source, Matrix_Vector* destination);
