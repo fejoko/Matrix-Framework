@@ -15,6 +15,4 @@ void matrix_statemanager_draw2d(Matrix_Statemanager* statemanager);
 void matrix_statemanager_draw3d(Matrix_Statemanager* statemanager);
 void matrix_statemanager_shutdown(Matrix_Statemanager* statemanager);
 
-void matrix_statemanager_state_enter_default(Matrix_Statemanager* statemanager);
-
 #endif // !___MTRX___INTERNAL_STATEMANAGER_H

@@ -3,8 +3,10 @@ target_sources(Matrix
     ${CMAKE_CURRENT_LIST_DIR}/matrix.h
 )
 
+add_subdirectory(Application)
 add_subdirectory(Console)
 add_subdirectory(Core)
+add_subdirectory(Engine)
 add_subdirectory(Pch)
 add_subdirectory(Statemanager)
 add_subdirectory(Vector)

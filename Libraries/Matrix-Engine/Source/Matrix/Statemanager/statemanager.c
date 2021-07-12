@@ -4,9 +4,9 @@
 #include "Matrix/Statemanager/INTERNAL/INTERNAL_statemanager_errors.h"
 #include "Matrix/Vector/vector.h"
 
-Matrix_State matrix_statemanager_state_construct()
+Matrix_Statemanager_State matrix_statemanager_state_construct()
 {
-	Matrix_State state;
+	Matrix_Statemanager_State state;
 	state.name = "";
 	state.on_creation = NULL;
 	state.on_destruction = NULL;
@@ -19,7 +19,7 @@ Matrix_State matrix_statemanager_state_construct()
 	return state;
 }
 
-void matrix_statemanager_state_destruct(Matrix_State* state)
+void matrix_statemanager_state_destruct(Matrix_Statemanager_State* state)
 {
 	if (NULL == state)
 	{
@@ -31,7 +31,7 @@ void matrix_statemanager_state_destruct(Matrix_State* state)
 	}
 }
 
-void matrix_statemanager_state_push(Matrix_State state, Matrix_Statemanager* statemanager)
+void matrix_statemanager_state_push(Matrix_Statemanager_State state, Matrix_Statemanager* statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -44,7 +44,7 @@ void matrix_statemanager_state_push(Matrix_State state, Matrix_Statemanager* sta
 			bool found = false;
 			for (size_t i = 0; i < matrix_vector_capacity(statemanager->states_vec_all); i++)
 			{
-				if (strcmp(state.name, MTRX_VECTOR_AT_AS(Matrix_State, i, statemanager->states_vec_all).name))
+				if (strcmp(state.name, MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, i, statemanager->states_vec_all).name))
 				{
 					//nothing
 				}
@@ -79,7 +79,7 @@ void matrix_statemanager_state_push(Matrix_State state, Matrix_Statemanager* sta
 	}
 }
 
-void matrix_statemanager_state_push_default(Matrix_State state, Matrix_Statemanager* statemanager)
+void matrix_statemanager_state_push_default(Matrix_Statemanager_State state, Matrix_Statemanager* statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -92,7 +92,7 @@ void matrix_statemanager_state_push_default(Matrix_State state, Matrix_Statemana
 			bool found = false;
 			for (size_t i = 0; i < matrix_vector_capacity(statemanager->states_vec_all); i++)
 			{
-				if (strcmp(state.name, MTRX_VECTOR_AT_AS(Matrix_State, i, statemanager->states_vec_all).name))
+				if (strcmp(state.name, MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, i, statemanager->states_vec_all).name))
 				{
 					//nothing
 				}
@@ -108,7 +108,7 @@ void matrix_statemanager_state_push_default(Matrix_State state, Matrix_Statemana
 			}
 			else
 			{
-				MTRX_VECTOR_AT_AS(Matrix_State, 0, statemanager->states_vec_all) = state;
+				MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all) = state;
 
 				if (NULL == state.on_creation)
 				{
@@ -139,7 +139,7 @@ void matrix_statemanager_state_enter(const char* state_name, Matrix_Statemanager
 		size_t index_new = 0;
 		for (size_t i = 0; i < matrix_vector_capacity(statemanager->states_vec_all); i++)
 		{
-			if (strcmp(state_name, MTRX_VECTOR_AT_AS(Matrix_State, i, statemanager->states_vec_all).name))
+			if (strcmp(state_name, MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, i, statemanager->states_vec_all).name))
 			{
 				//nothing
 			}
@@ -152,32 +152,25 @@ void matrix_statemanager_state_enter(const char* state_name, Matrix_Statemanager
 
 		if (found)
 		{
-			if (index_new == statemanager->state_index_top)
+			if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, statemanager->state_index_top, statemanager->states_vec_all).on_leave)
 			{
-				MTRX_ERROR_STATEMANAGER_SELFENTERING_STATE;
+				//nothing
 			}
 			else
 			{
-				if (NULL == MTRX_VECTOR_AT_AS(Matrix_State, statemanager->state_index_top, statemanager->states_vec_all).on_leave)
-				{
-					//nothing
-				}
-				else
-				{
-					MTRX_VECTOR_AT_AS(Matrix_State, statemanager->state_index_top, statemanager->states_vec_all).on_leave();
-				}
-
-				if (NULL == MTRX_VECTOR_AT_AS(Matrix_State, index_new, statemanager->states_vec_all).on_enter)
-				{
-					//nothing
-				}
-				else
-				{
-					MTRX_VECTOR_AT_AS(Matrix_State, index_new, statemanager->states_vec_all).on_enter();
-				}
-
-				statemanager->state_index_top = index_new;
+				MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, statemanager->state_index_top, statemanager->states_vec_all).on_leave();
 			}
+
+			if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, index_new, statemanager->states_vec_all).on_enter)
+			{
+				//nothing
+			}
+			else
+			{
+				MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, index_new, statemanager->states_vec_all).on_enter();
+			}
+
+			statemanager->state_index_top = index_new;
 		}
 		else
 		{

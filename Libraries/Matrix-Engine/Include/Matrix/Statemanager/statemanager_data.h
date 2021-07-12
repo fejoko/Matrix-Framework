@@ -11,6 +11,6 @@ typedef struct Matrix_State
 	void (*on_update)();
 	void (*on_draw2d)();
 	void (*on_draw3d)();
-} Matrix_State;
+} Matrix_Statemanager_State;
 
 #endif // !___MTRX___STATEMANAGER_DATA_H

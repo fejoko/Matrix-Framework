@@ -1,4 +1,6 @@
+add_subdirectory(Application)
 add_subdirectory(Console)
 add_subdirectory(Core)
+add_subdirectory(Engine)
 add_subdirectory(Statemanager)
 add_subdirectory(Vector)

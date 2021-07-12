@@ -5,11 +5,20 @@
 #include "Matrix/Pch/mtrxstdafx.h"
 //---------------------------------------
 
+#include "Matrix/Application/application.h"
+#include "Matrix/Application/application_data.h"
+
 #include "Matrix/Console/console.h"
 
 #include "Matrix/Core/configuration.h"
 #include "Matrix/Core/core.h"
 #include "Matrix/Core/error.h"
+
+#include "Matrix/Engine/engine.h"
+#include "Matrix/Engine/engine_data.h"
+
+#include "Matrix/Statemanager/statemanager.h"
+#include "Matrix/Statemanager/statemanager_data.h"
 
 //----------entry point----------
 #include "Matrix/Core/main.h"
