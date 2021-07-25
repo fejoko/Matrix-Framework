@@ -3,8 +3,6 @@
 #include "Matrix/Console/console.h"
 #include "Matrix/Core/configuration.h"
 
-#define MTRX_PRINTF(...) printf(__VA_ARGS__)
-
 void matrix_error_exit(const char* what, const char* code, const char* FILE, const char* func, const int LINE)
 {
 	if (MTRX_DEBUG_IS || MTRX_MINSIZEREL_IS)

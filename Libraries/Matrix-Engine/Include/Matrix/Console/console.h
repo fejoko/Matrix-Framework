@@ -1,7 +1,7 @@
 #ifndef ___MTRX___CONSOLE_H
 #define ___MTRX___CONSOLE_H
 
-int matrix_printf(_In_z_ _Printf_format_string_ char const* const _Format, ...);
+int matrix_printf(const char* format, ...);
 
 #ifdef ___MTRX_NOCONSOLEOUTPUT
 #define MTRX_PRINTF(...)
