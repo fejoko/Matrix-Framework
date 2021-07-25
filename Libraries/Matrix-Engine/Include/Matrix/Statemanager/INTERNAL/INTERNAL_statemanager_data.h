@@ -6,6 +6,12 @@
 
 typedef struct Matrix_Vector Matrix_Vector;
 
+typedef struct Matrix_Statemanager_State
+{
+	Matrix_Statemanager_State_Core core;
+	bool is_loadet;
+} Matrix_Statemanager_State;
+
 typedef struct Matrix_Statemanager
 {
 	Matrix_Vector* states_vec_all;

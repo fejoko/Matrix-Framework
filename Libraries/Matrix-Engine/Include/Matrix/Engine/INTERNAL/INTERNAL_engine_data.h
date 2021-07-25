@@ -9,7 +9,7 @@
 typedef struct Matrix_Engine
 {
 	const Matrix_Engine_Info engine_info;
-	bool is_quit;
+	bool is_stop;
 	Matrix_Engine_Settings engine_settings;
 	Matrix_Statemanager statemanager;
 	Matrix_Application application;

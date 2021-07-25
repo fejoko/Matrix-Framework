@@ -64,7 +64,7 @@ void matrix_INTERNAL_engine_shutdown(Matrix_Engine* engine)
 Matrix_Engine matrix_engine_construct()
 {
 	Matrix_Engine engine = { matrix_INTERNAL_engine_info_construct() };
-	engine.is_quit = false;
+	engine.is_stop = false;
 	engine.engine_settings.i = 0;
 	engine.application = matrix_applicatione_construct();
 	engine.statemanager = matrix_statemanager_construct();
@@ -93,7 +93,7 @@ void matrix_engine_run(Matrix_Engine* engine)
 	else
 	{
 		matrix_INTERNAL_engine_init(engine);
-		while (!engine->is_quit)
+		while (!engine->is_stop)
 		{
 			matrix_INTERNAL_engine_update(engine);
 		}

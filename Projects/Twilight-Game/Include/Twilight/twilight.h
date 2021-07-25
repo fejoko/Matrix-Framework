@@ -8,6 +8,8 @@ void twilight_statemanager_setup(Matrix_Statemanager* statemanager);
 
 void twilight_state_default_on_creation();
 void twilight_state_default_on_destruction();
+void twilight_state_default_on_load();
+void twilight_state_default_on_unload();
 void twilight_state_default_on_enter();
 void twilight_state_default_on_leave();
 void twilight_state_default_on_update();

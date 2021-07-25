@@ -15,5 +15,6 @@ void matrix_engine_settings_destruct(Matrix_Engine_Settings* engine_settings);
 void matrix_engine_settings_set(Matrix_Engine_Settings engine_settings, Matrix_Engine* engine);
 
 void matrix_engine_stop(Matrix_Engine* engine);
+bool matrix_engine_stop_is(Matrix_Engine* engine);
 
 #endif // !___MTRX___ENGINE_H

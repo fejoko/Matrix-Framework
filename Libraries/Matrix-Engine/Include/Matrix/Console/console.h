@@ -1,6 +1,8 @@
 #ifndef ___MTRX___CONSOLE_H
 #define ___MTRX___CONSOLE_H
 
+#include "Matrix/Pch/INTERNAL/PCH_stdio.h"
+
 int matrix_printf(const char* format, ...);
 
 #ifdef ___MTRX_NOCONSOLEOUTPUT

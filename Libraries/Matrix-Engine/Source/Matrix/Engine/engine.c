@@ -48,6 +48,18 @@ void matrix_engine_stop(Matrix_Engine* engine)
 	}
 	else
 	{
-		engine->is_quit = true;
+		engine->is_stop = true;
+	}
+}
+
+bool matrix_engine_stop_is(Matrix_Engine* engine)
+{
+	if (NULL == engine)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return engine->is_stop;
 	}
 }
