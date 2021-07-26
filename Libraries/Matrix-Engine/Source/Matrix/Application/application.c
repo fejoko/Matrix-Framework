@@ -82,3 +82,15 @@ void matrix_application_settings_set(Matrix_Application_Settings application_set
 		application->application_settings = application_settings;
 	}
 }
+
+void* matrix_application_data_get(Matrix_Application* application)
+{
+	if (NULL == application)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return application->app_data;
+	}
+}

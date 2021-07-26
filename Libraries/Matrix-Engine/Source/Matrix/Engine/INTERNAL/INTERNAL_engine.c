@@ -21,6 +21,12 @@ void matrix_INTERNAL_engine_init(Matrix_Engine* engine)
 	}
 	else
 	{
+		engine->statemanager.data = &engine->data;
+
+		engine->data.engine = engine;
+		engine->data.statemanager = &engine->statemanager;
+		engine->data.application = &engine->application;
+
 		matrix_application_attach(&engine->application);
 
 		if (NULL != engine->application.application_core.engine_setup)
@@ -66,8 +72,8 @@ Matrix_Engine matrix_engine_construct()
 	Matrix_Engine engine = { matrix_INTERNAL_engine_info_construct() };
 	engine.is_stop = false;
 	engine.engine_settings.i = 0;
-	engine.application = matrix_applicatione_construct();
 	engine.statemanager = matrix_statemanager_construct();
+	engine.application = matrix_applicatione_construct();
 
 	return engine;
 }

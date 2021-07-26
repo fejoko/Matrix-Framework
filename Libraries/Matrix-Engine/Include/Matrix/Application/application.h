@@ -23,4 +23,6 @@ void matrix_application_core_set(Matrix_Application_Core application_core, Matri
 void matrix_application_info_set(Matrix_Application_Info application_info, Matrix_Application* application);
 void matrix_application_settings_set(Matrix_Application_Settings application_settings, Matrix_Application* application);
 
+void* matrix_application_data_get(Matrix_Application* application);
+
 #endif // !___MTRX___APPLICATION_H

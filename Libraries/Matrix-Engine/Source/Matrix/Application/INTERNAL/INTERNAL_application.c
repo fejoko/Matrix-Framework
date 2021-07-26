@@ -9,6 +9,7 @@ Matrix_Application matrix_applicatione_construct()
 	application.application_core = matrix_application_core_construct();
 	application.application_info = matrix_application_info_construct();
 	application.application_settings = matrix_application_settings_construct();
+	application.app_data = NULL;
 
 	return application;
 }

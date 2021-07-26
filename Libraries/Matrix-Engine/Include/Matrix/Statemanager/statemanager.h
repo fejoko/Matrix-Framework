@@ -5,6 +5,7 @@
 
 typedef struct Matrix_Statemanager_State_Core Matrix_Statemanager_State_Core;
 typedef struct Matrix_Statemanager Matrix_Statemanager;
+typedef struct Matrix_State Matrix_State;
 
 Matrix_Statemanager_State_Core matrix_statemanager_state_core_construct();
 void matrix_statemanager_state_core_destruct(Matrix_Statemanager_State_Core* state_core);

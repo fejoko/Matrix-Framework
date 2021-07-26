@@ -5,11 +5,13 @@
 #include "Matrix/Statemanager/statemanager_data.h"
 
 typedef struct Matrix_Vector Matrix_Vector;
+typedef struct Matrix_Data Matrix_Data;
 
 typedef struct Matrix_Statemanager_State
 {
 	Matrix_Statemanager_State_Core core;
 	bool is_loadet;
+	void* state_data;
 } Matrix_Statemanager_State;
 
 typedef struct Matrix_Statemanager
@@ -17,6 +19,7 @@ typedef struct Matrix_Statemanager
 	Matrix_Vector* states_vec_all;
 	size_t state_index_top;
 	bool state_default_pushed;
+	Matrix_Data* data;
 } Matrix_Statemanager;
 
 #endif // !___MTRX___INTERNAL_STATEMANAGER_DATA_H

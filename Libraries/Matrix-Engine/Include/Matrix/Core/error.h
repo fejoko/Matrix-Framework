@@ -3,14 +3,14 @@
 
 #include "Matrix/Pch/mtrxstdafx.h"
 
-void matrix_error_exit(const char* what, const char* code, const char* FILE, const char* func, const int LINE);
-void matrix_error_abort(const char* what, const char* code, const char* FILE, const char* func, const int LINE);
+void matrix_error_exit(const char* what, const char* code, const char* FILE, const char* func, const int LINE, const char* DATE, const char* TIME);
+void matrix_error_abort(const char* what, const char* code, const char* FILE, const char* func, const int LINE, const char* DATE, const char* TIME);
 
 #define MTRX_ERROR_EXIT(what, code) \
-matrix_error_exit(what, code, __FILE__, __func__, __LINE__);
+matrix_error_exit(what, code, __FILE__, __func__, __LINE__, __DATE__, __TIME__);
 
 #define MTRX_ERROR_ABORT(what, code) \
-matrix_error_abort(what, code, __FILE__, __func__, __LINE__);
+matrix_error_abort(what, code, __FILE__, __func__, __LINE__, __DATE__, __TIME__);
 
 //----------general errors----------
 #define MTRX_ERROR_MALLOC_FAILED \

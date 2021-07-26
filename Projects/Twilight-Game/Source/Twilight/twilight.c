@@ -2,9 +2,6 @@
 
 #include "Twilight/Game/game.h"
 
-void* a;
-void* ee;
-
 void matrix_application_attach(Matrix_Application* application)
 {
 	Matrix_Application_Core application_core = matrix_application_core_construct();
@@ -30,7 +27,7 @@ void matrix_application_attach(Matrix_Application* application)
 void twilight_engine_setup(Matrix_Engine* engine)
 {
 	Matrix_Engine_Info engine_info = matrix_engine_info_get(engine);
-	ee = engine;//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH
+
 	Matrix_Engine_Settings engine_settings = matrix_engine_settings_construct();
 	engine_settings.i = 0;
 	matrix_engine_settings_set(engine_settings, engine);
@@ -52,7 +49,7 @@ void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
 	state_default.on_draw3d = twilight_state_default_on_draw3d;
 	matrix_statemanager_state_create_default(state_default, statemanager);
 	matrix_statemanager_state_core_destruct(&state_default);
-	a = statemanager;//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH//TOFOOGDSGSDFGHDGHSGHEGHESHH
+
 	Matrix_Statemanager_State_Core state_game = matrix_statemanager_state_core_construct();
 	state_game.name = "game";
 	state_game.on_creation = twilight_state_game_on_creation;
@@ -68,53 +65,57 @@ void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
 	matrix_statemanager_state_core_destruct(&state_game);
 }
 
-void twilight_state_default_on_creation()
+void twilight_state_default_on_creation(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default creation\n");
+	*state_data = matrix_vector_construct(sizeof(int), 10);
+	MTRX_PRINTF("%u\n", matrix_vector_capacity(*state_data));
 }
 
-void twilight_state_default_on_destruction()
+void twilight_state_default_on_destruction(void** state_data, Matrix_Data* data)
 {
+	MTRX_PRINTF("%u\n", matrix_vector_capacity(*state_data));
+	free(*state_data);
 	MTRX_PRINTF("default destruction\n");
 }
 
-void twilight_state_default_on_load()
+void twilight_state_default_on_load(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default load\n");
 }
 
-void twilight_state_default_on_unload()
+void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default unload\n");
 }
 
-void twilight_state_default_on_enter()
+void twilight_state_default_on_enter(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default enter\n");
-	if (!matrix_engine_stop_is(ee))
+	if (!matrix_engine_stop_is(data->engine))
 	{
-		matrix_statemanager_state_load("game", a);
-		matrix_statemanager_state_enter("game", a);
-		matrix_engine_stop(ee);
+		matrix_statemanager_state_load("game", data->statemanager);
+		matrix_statemanager_state_enter("game", data->statemanager);
+		matrix_engine_stop(data->engine);
 	}
 }
 
-void twilight_state_default_on_leave()
+void twilight_state_default_on_leave(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default leave\n");
 }
 
-void twilight_state_default_on_update()
+void twilight_state_default_on_update(double delta, void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default update\n");
 }
 
-void twilight_state_default_on_draw2d()
+void twilight_state_default_on_draw2d(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default draw2d\n");
 }
 
-void twilight_state_default_on_draw3d()
+void twilight_state_default_on_draw3d(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default draw3d\n");
 }

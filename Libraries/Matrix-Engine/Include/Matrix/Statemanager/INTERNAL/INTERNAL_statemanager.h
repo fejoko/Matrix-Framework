@@ -6,6 +6,7 @@
 
 typedef struct Matrix_Statemanager_State Matrix_Statemanager_State;
 typedef struct Matrix_Statemanager Matrix_Statemanager;
+typedef struct Matrix_Data Matrix_Data;
 
 Matrix_Statemanager_State matrix_statemanager_state_construct();
 void matrix_statemanager_state_destruct(Matrix_Statemanager_State* state);

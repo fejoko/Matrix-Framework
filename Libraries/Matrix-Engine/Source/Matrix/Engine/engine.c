@@ -25,7 +25,7 @@ Matrix_Engine_Settings matrix_engine_settings_construct()
 
 void matrix_engine_settings_destruct(Matrix_Engine_Settings* engine_settings)
 {
-
+	
 }
 
 void matrix_engine_settings_set(Matrix_Engine_Settings engine_settings, Matrix_Engine* engine)

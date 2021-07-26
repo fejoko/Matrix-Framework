@@ -13,6 +13,7 @@ typedef struct Matrix_Engine
 	Matrix_Engine_Settings engine_settings;
 	Matrix_Statemanager statemanager;
 	Matrix_Application application;
+	Matrix_Data data;
 } Matrix_Engine;
 
 #endif // !___MTRX___INTERNAL_ENGINE_DATA_H

@@ -9,6 +9,7 @@ typedef struct Matrix_Application
 	Matrix_Application_Core application_core;
 	Matrix_Application_Info application_info;
 	Matrix_Application_Settings application_settings;
+	void* app_data;
 } Matrix_Application;
 
 #endif // !___MTRX___INTERNAL_APPLICATION_DATA_H
