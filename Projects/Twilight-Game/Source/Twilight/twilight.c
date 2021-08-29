@@ -89,7 +89,6 @@ void twilight_state_default_on_destruction(void** state_data, Matrix_Data* data)
 void twilight_state_default_on_load(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default load\n");
-	MTRX_LOG("sdfg", MATRIX_LOGGER_LEVEL_ERROR, data->logger);
 }
 
 void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)
