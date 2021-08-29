@@ -17,6 +17,9 @@
 #include "Matrix/Engine/engine.h"
 #include "Matrix/Engine/engine_data.h"
 
+#include "Matrix/Logger/logger.h"
+#include "Matrix/Logger/logger_data.h"
+
 #include "Matrix/Statemanager/statemanager.h"
 #include "Matrix/Statemanager/statemanager_data.h"
 

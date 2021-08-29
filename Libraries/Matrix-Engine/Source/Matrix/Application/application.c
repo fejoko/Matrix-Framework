@@ -8,14 +8,21 @@ Matrix_Application_Core matrix_application_core_construct()
 {
 	Matrix_Application_Core application_core;
 	application_core.engine_setup = NULL;
+	application_core.logger_setup = NULL;
 	application_core.statemanager_setup = NULL;
 
 	return application_core;
 }
 
-void matrix_application_core_destruct(Matrix_Application_Core* application_core)
+void matrix_application_core_destruct(Matrix_Application_Core* const application_core)
 {
-
+	if (NULL == application_core)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+	}
 }
 
 Matrix_Application_Info matrix_application_info_construct()
@@ -29,9 +36,15 @@ Matrix_Application_Info matrix_application_info_construct()
 	return application_info;
 }
 
-void matrix_application_info_destruct(Matrix_Application_Info* application_info)
+void matrix_application_info_destruct(Matrix_Application_Info* const application_info)
 {
-
+	if (NULL == application_info)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+	}
 }
 
 Matrix_Application_Settings matrix_application_settings_construct()
@@ -42,12 +55,18 @@ Matrix_Application_Settings matrix_application_settings_construct()
 	return application_settings;
 }
 
-void matrix_application_settings_destruct(Matrix_Application_Settings* application_settings)
+void matrix_application_settings_destruct(Matrix_Application_Settings* const application_settings)
 {
-
+	if (NULL == application_settings)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+	}
 }
 
-void matrix_application_core_set(Matrix_Application_Core application_core, Matrix_Application* application)
+void matrix_application_core_set(const Matrix_Application_Core application_core, Matrix_Application* const application)
 {
 	if (NULL == application)
 	{
@@ -59,7 +78,7 @@ void matrix_application_core_set(Matrix_Application_Core application_core, Matri
 	}
 }
 
-void matrix_application_info_set(Matrix_Application_Info application_info, Matrix_Application* application)
+void matrix_application_info_set(const Matrix_Application_Info application_info, Matrix_Application* const application)
 {
 	if (NULL == application)
 	{
@@ -71,7 +90,7 @@ void matrix_application_info_set(Matrix_Application_Info application_info, Matri
 	}
 }
 
-void matrix_application_settings_set(Matrix_Application_Settings application_settings, Matrix_Application* application)
+void matrix_application_settings_set(const Matrix_Application_Settings application_settings, Matrix_Application* const application)
 {
 	if (NULL == application)
 	{
@@ -83,7 +102,7 @@ void matrix_application_settings_set(Matrix_Application_Settings application_set
 	}
 }
 
-void* matrix_application_data_get(Matrix_Application* application)
+void* matrix_application_data_get(const Matrix_Application* const application)
 {
 	if (NULL == application)
 	{

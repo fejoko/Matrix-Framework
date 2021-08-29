@@ -6,7 +6,7 @@
 typedef struct Matrix_Vector Matrix_Vector;
 
 Matrix_Vector* matrix_vector_construct(const size_t element_size, const size_t vector_capacity);
-void matrix_vector_destruct(Matrix_Vector* vector);
+void matrix_vector_destruct(Matrix_Vector** const vector);
 
 char* matrix_vector_at(const size_t index, Matrix_Vector* const vector);
 char* matrix_vector_front(Matrix_Vector* const vector);

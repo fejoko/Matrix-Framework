@@ -15,7 +15,7 @@ Matrix_Statemanager_State matrix_statemanager_state_construct()
 	return state;
 }
 
-void matrix_statemanager_state_destruct(Matrix_Statemanager_State* state)
+void matrix_statemanager_state_destruct(Matrix_Statemanager_State* const state)
 {
 	if (NULL == state)
 	{
@@ -23,7 +23,6 @@ void matrix_statemanager_state_destruct(Matrix_Statemanager_State* state)
 	}
 	else
 	{
-
 	}
 }
 
@@ -38,7 +37,7 @@ Matrix_Statemanager matrix_statemanager_construct()
 	return statemanager;
 }
 
-void matrix_statemanager_destruct(Matrix_Statemanager* statemanager)
+void matrix_statemanager_destruct(Matrix_Statemanager* const statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -46,11 +45,11 @@ void matrix_statemanager_destruct(Matrix_Statemanager* statemanager)
 	}
 	else
 	{
-		matrix_vector_destruct(statemanager->states_vec_all);
+		matrix_vector_destruct(&statemanager->states_vec_all);
 	}
 }
 
-void matrix_statemanager_init(Matrix_Statemanager* statemanager)
+void matrix_statemanager_init(Matrix_Statemanager* const statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -80,7 +79,7 @@ void matrix_statemanager_init(Matrix_Statemanager* statemanager)
 	}
 }
 
-void matrix_statemanager_update(Matrix_Statemanager* statemanager)
+void matrix_statemanager_update(Matrix_Statemanager* const statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -101,7 +100,7 @@ void matrix_statemanager_update(Matrix_Statemanager* statemanager)
 	}
 }
 
-void matrix_statemanager_draw2d(Matrix_Statemanager* statemanager)
+void matrix_statemanager_draw2d(Matrix_Statemanager* const statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -120,7 +119,7 @@ void matrix_statemanager_draw2d(Matrix_Statemanager* statemanager)
 	}
 }
 
-void matrix_statemanager_draw3d(Matrix_Statemanager* statemanager)
+void matrix_statemanager_draw3d(Matrix_Statemanager* const statemanager)
 {
 	if (NULL == statemanager)
 	{
@@ -139,7 +138,7 @@ void matrix_statemanager_draw3d(Matrix_Statemanager* statemanager)
 	}
 }
 
-void matrix_statemanager_shutdown(Matrix_Statemanager* statemanager)
+void matrix_statemanager_shutdown(Matrix_Statemanager* const statemanager)
 {
 	if (NULL == statemanager)
 	{

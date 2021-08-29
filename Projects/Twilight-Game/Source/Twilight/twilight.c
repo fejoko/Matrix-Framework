@@ -2,10 +2,11 @@
 
 #include "Twilight/Game/game.h"
 
-void matrix_application_attach(Matrix_Application* application)
+void matrix_application_attach(Matrix_Application* const application)
 {
 	Matrix_Application_Core application_core = matrix_application_core_construct();
 	application_core.engine_setup = twilight_engine_setup;
+	application_core.logger_setup = twilight_logger_setup;
 	application_core.statemanager_setup = twilight_statemanager_setup;
 	matrix_application_core_set(application_core, application);
 	matrix_application_core_destruct(&application_core);
@@ -32,6 +33,16 @@ void twilight_engine_setup(Matrix_Engine* engine)
 	engine_settings.i = 0;
 	matrix_engine_settings_set(engine_settings, engine);
 	matrix_engine_settings_destruct(&engine_settings);
+}
+
+void twilight_logger_setup(Matrix_Logger* logger)
+{
+	Matrix_Logger_Settings logger_settings = matrix_logger_settings_construct();
+	logger_settings.is_logging = true;
+	logger_settings.is_timestamp = true;
+	logger_settings.minimal_level = MATRIX_LOGGER_LEVEL_TRACE;
+	matrix_logger_settings_set(logger_settings, logger);
+	matrix_logger_settings_destruct(&logger_settings);
 }
 
 void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
@@ -68,20 +79,17 @@ void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
 void twilight_state_default_on_creation(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default creation\n");
-	*state_data = matrix_vector_construct(sizeof(int), 10);
-	MTRX_PRINTF("%u\n", matrix_vector_capacity(*state_data));
 }
 
 void twilight_state_default_on_destruction(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("%u\n", matrix_vector_capacity(*state_data));
-	free(*state_data);
 	MTRX_PRINTF("default destruction\n");
 }
 
 void twilight_state_default_on_load(void** state_data, Matrix_Data* data)
 {
 	MTRX_PRINTF("default load\n");
+	MTRX_LOG("sdfg", MATRIX_LOGGER_LEVEL_ERROR, data->logger);
 }
 
 void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)

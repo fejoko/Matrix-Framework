@@ -4,6 +4,7 @@
 #include "Matrix/matrix.h"
 
 void twilight_engine_setup(Matrix_Engine* engine);
+void twilight_logger_setup(Matrix_Logger* logger);
 void twilight_statemanager_setup(Matrix_Statemanager* statemanager);
 
 void twilight_state_default_on_creation(void** state_data, Matrix_Data* data);

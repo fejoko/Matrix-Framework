@@ -41,7 +41,7 @@ Matrix_Vector* matrix_vector_construct(const size_t element_size, const size_t v
 	}
 }
 
-void matrix_vector_destruct(Matrix_Vector* vector)
+void matrix_vector_destruct(Matrix_Vector** const vector)
 {
 	if (NULL == vector)
 	{
@@ -49,25 +49,32 @@ void matrix_vector_destruct(Matrix_Vector* vector)
 	}
 	else
 	{
-		if (vector->vector_capacity < 1)
+		if (NULL == *vector)
 		{
-			//nothing
+			MTRX_ERROR_UNEXPECTED_NULL;
 		}
 		else
 		{
- 			if (NULL == vector->vector_data)
+			if ((*vector)->vector_capacity < 1)
 			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				//nothing
 			}
 			else
 			{
-				free(vector->vector_data);
-				vector->vector_data = NULL;
+				if (NULL == (*vector)->vector_data)
+				{
+					MTRX_ERROR_UNEXPECTED_NULL;
+				}
+				else
+				{
+					free((*vector)->vector_data);
+					(*vector)->vector_data = NULL;
+				}
 			}
-		}
 
-		free(vector);
-		vector = NULL;
+			free(*vector);
+			*vector = NULL;
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #include "Matrix/Pch/mtrxstdafx.h"
 #include "Matrix/Application/INTERNAL/INTERNAL_application_data.h"
 #include "Matrix/Engine/engine_data.h"
+#include "Matrix/Logger/INTERNAL/INTERNAL_logger_data.h"
 #include "Matrix/Statemanager/INTERNAL/INTERNAL_statemanager_data.h"
 
 typedef struct Matrix_Engine
@@ -11,6 +12,7 @@ typedef struct Matrix_Engine
 	const Matrix_Engine_Info engine_info;
 	bool is_stop;
 	Matrix_Engine_Settings engine_settings;
+	Matrix_Logger logger;
 	Matrix_Statemanager statemanager;
 	Matrix_Application application;
 	Matrix_Data data;

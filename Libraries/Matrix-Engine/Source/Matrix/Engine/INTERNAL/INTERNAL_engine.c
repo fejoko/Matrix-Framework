@@ -4,6 +4,7 @@
 #include "Matrix/Core/core.h"
 #include "Matrix/Core/error.h"
 #include "Matrix/Engine/INTERNAL/INTERNAL_engine_data.h"
+#include "Matrix/Logger/INTERNAL/INTERNAL_logger.h"
 #include "Matrix/Statemanager/INTERNAL/INTERNAL_statemanager.h"
 
 Matrix_Engine_Info matrix_INTERNAL_engine_info_construct()
@@ -13,7 +14,7 @@ Matrix_Engine_Info matrix_INTERNAL_engine_info_construct()
 	return engine_info;
 }
 
-void matrix_INTERNAL_engine_init(Matrix_Engine* engine)
+void matrix_INTERNAL_engine_init(Matrix_Engine* const engine)
 {
 	if (NULL == engine)
 	{
@@ -24,6 +25,7 @@ void matrix_INTERNAL_engine_init(Matrix_Engine* engine)
 		engine->statemanager.data = &engine->data;
 
 		engine->data.engine = engine;
+		engine->data.logger = &engine->logger;
 		engine->data.statemanager = &engine->statemanager;
 		engine->data.application = &engine->application;
 
@@ -34,6 +36,13 @@ void matrix_INTERNAL_engine_init(Matrix_Engine* engine)
 			engine->application.application_core.engine_setup(engine);
 		}
 
+		if (NULL != engine->application.application_core.logger_setup)
+		{
+			engine->application.application_core.logger_setup(&engine->logger);
+		}
+
+		matrix_logger_init(engine, &engine->logger);
+
 		if (NULL != engine->application.application_core.statemanager_setup)
 		{
 			engine->application.application_core.statemanager_setup(&engine->statemanager);
@@ -43,7 +52,7 @@ void matrix_INTERNAL_engine_init(Matrix_Engine* engine)
 	}
 }
 
-void matrix_INTERNAL_engine_update(Matrix_Engine* engine)
+void matrix_INTERNAL_engine_update(Matrix_Engine* const engine)
 {
 	if (NULL == engine)
 	{
@@ -55,7 +64,7 @@ void matrix_INTERNAL_engine_update(Matrix_Engine* engine)
 	}
 }
 
-void matrix_INTERNAL_engine_shutdown(Matrix_Engine* engine)
+void matrix_INTERNAL_engine_shutdown(Matrix_Engine* const engine)
 {
 	if (NULL == engine)
 	{
@@ -64,6 +73,7 @@ void matrix_INTERNAL_engine_shutdown(Matrix_Engine* engine)
 	else
 	{
 		matrix_statemanager_shutdown(&engine->statemanager);
+		matrix_logger_shutdown(&engine->logger);
 	}
 }
 
@@ -72,13 +82,14 @@ Matrix_Engine matrix_engine_construct()
 	Matrix_Engine engine = { matrix_INTERNAL_engine_info_construct() };
 	engine.is_stop = false;
 	engine.engine_settings.i = 0;
+	engine.logger = matrix_logger_construct();
 	engine.statemanager = matrix_statemanager_construct();
 	engine.application = matrix_applicatione_construct();
 
 	return engine;
 }
 
-void matrix_engine_destruct(Matrix_Engine* engine)
+void matrix_engine_destruct(Matrix_Engine* const engine)
 {
 	if (NULL == engine)
 	{
@@ -86,11 +97,13 @@ void matrix_engine_destruct(Matrix_Engine* engine)
 	}
 	else
 	{
+		matrix_application_destruct(&engine->application);
 		matrix_statemanager_destruct(&engine->statemanager);
+		matrix_logger_destruct(&engine->logger);
 	}
 }
 
-void matrix_engine_run(Matrix_Engine* engine)
+void matrix_engine_run(Matrix_Engine* const engine)
 {
 	if (NULL == engine)
 	{

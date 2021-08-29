@@ -8,7 +8,7 @@ add_library(Matrix)
 
 target_compile_definitions(Matrix
        PUBLIC
-       "___MTRX_NOCONSOLECOLOR"
+       
 )
 target_compile_definitions(Matrix
        PUBLIC

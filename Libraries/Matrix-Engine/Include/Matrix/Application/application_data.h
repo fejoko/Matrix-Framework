@@ -5,11 +5,13 @@
 
 typedef struct Matrix_Application Matrix_Application;
 typedef struct Matrix_Engine Matrix_Engine;
+typedef struct Matrix_Logger Matrix_Logger;
 typedef struct Matrix_Statemanager Matrix_Statemanager;
 
 typedef struct Matrix_Application_Core
 {
 	void (*engine_setup)(Matrix_Engine* engine);
+	void (*logger_setup)(Matrix_Logger* logger);
 	void (*statemanager_setup)(Matrix_Statemanager* statemanager);
 } Matrix_Application_Core;
 

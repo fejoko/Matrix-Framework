@@ -8,6 +8,6 @@
 typedef struct Matrix_Application Matrix_Application;
 
 Matrix_Application matrix_applicatione_construct();
-void matrix_application_destruct(Matrix_Application* application);
+void matrix_application_destruct(Matrix_Application* const application);
 
 #endif // !___MTRX___INTERNAL_APPLICATION_H
