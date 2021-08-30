@@ -17,4 +17,9 @@ typedef struct Matrix_Statemanager_State_Core
 	void (*on_draw3d)(void** state_data, Matrix_Data* data);
 } Matrix_Statemanager_State_Core;
 
+typedef struct Matrix_Statemanager_Settings
+{
+	bool is_state_logging;
+} Matrix_Statemanager_Settings;
+
 #endif // !___MTRX___STATEMANAGER_DATA_H

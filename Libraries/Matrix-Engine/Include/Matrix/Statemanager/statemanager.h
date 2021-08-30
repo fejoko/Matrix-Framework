@@ -3,9 +3,15 @@
 
 #include "Matrix/Pch/mtrxstdafx.h"
 
+typedef struct Matrix_Statemanager_Settings Matrix_Statemanager_Settings;
 typedef struct Matrix_Statemanager_State_Core Matrix_Statemanager_State_Core;
 typedef struct Matrix_Statemanager Matrix_Statemanager;
 typedef struct Matrix_State Matrix_State;
+
+Matrix_Statemanager_Settings matrix_statemanager_settings_construct();
+void matrix_statemanager_settings_destruct(Matrix_Statemanager_Settings* const statemanager_settings);
+
+void matrix_statemanager_settings_set(Matrix_Statemanager_Settings statemanager_settings, Matrix_Statemanager* statemanager);
 
 Matrix_Statemanager_State_Core matrix_statemanager_state_core_construct();
 void matrix_statemanager_state_core_destruct(Matrix_Statemanager_State_Core* const state_core);

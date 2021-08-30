@@ -19,6 +19,7 @@ typedef struct Matrix_Statemanager
 	Matrix_Vector* states_vec_all;
 	size_t state_index_top;
 	bool state_default_pushed;
+	Matrix_Statemanager_Settings statemanager_settings;
 	Matrix_Data* data;
 } Matrix_Statemanager;
 

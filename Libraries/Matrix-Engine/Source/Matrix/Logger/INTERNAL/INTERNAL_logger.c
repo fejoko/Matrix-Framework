@@ -6,6 +6,9 @@
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger_data.h"
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger_errors.h"
 
+#define STB_SPRINTF_IMPLEMENTATION
+#include "stb/stb_sprintf.h"
+
 Matrix_Logger matrix_logger_construct()
 {
 	Matrix_Logger logger;
@@ -74,15 +77,17 @@ void matrix_general_log(const char* message, const Matrix_Logger_Level level, co
 			{
 				if (level >= logger->logger_settings.minimal_level)
 				{
-					const char* timestamp = "";
 					const char* owner_color = "";
 					const char* owner_name = "";
 					const char* level_color = "";
 					const char* level_name = "";
 
+					char* timestamp = malloc(sizeof(*timestamp) * 11);;
+
 					if (logger->logger_settings.is_timestamp)
 					{
-						timestamp = "[xx:xx:xx]";
+						const char* aaa = "xx:xx:xx";
+						stbsp_sprintf(timestamp, "[%s]", aaa);
 					}
 					else
 					{
@@ -138,6 +143,8 @@ void matrix_general_log(const char* message, const Matrix_Logger_Level level, co
 					}
 
 					MTRX_PRINTF("%s[%s%s%s][%s%s%s] %s\n", timestamp, owner_color, owner_name, MATRIX_CONSOLE_COLOR_RESET, level_color, level_name, MATRIX_CONSOLE_COLOR_RESET, message);
+
+					free(timestamp);
 				}
 				else
 				{

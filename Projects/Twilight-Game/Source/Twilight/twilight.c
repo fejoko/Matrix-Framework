@@ -47,6 +47,11 @@ void twilight_logger_setup(Matrix_Logger* logger)
 
 void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
 {
+	Matrix_Statemanager_Settings statemanager_settings = matrix_statemanager_settings_construct();
+	statemanager_settings.is_state_logging = true;
+	matrix_statemanager_settings_set(statemanager_settings, statemanager);
+	matrix_statemanager_settings_destruct(&statemanager_settings);
+
 	Matrix_Statemanager_State_Core state_default = matrix_statemanager_state_core_construct();
 	state_default.name = "default";
 	state_default.on_creation = twilight_state_default_on_creation;
@@ -78,27 +83,22 @@ void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
 
 void twilight_state_default_on_creation(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default creation\n");
 }
 
 void twilight_state_default_on_destruction(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default destruction\n");
 }
 
 void twilight_state_default_on_load(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default load\n");
 }
 
 void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default unload\n");
 }
 
 void twilight_state_default_on_enter(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default enter\n");
 	if (!matrix_engine_stop_is(data->engine))
 	{
 		matrix_statemanager_state_load("game", data->statemanager);
@@ -109,20 +109,16 @@ void twilight_state_default_on_enter(void** state_data, Matrix_Data* data)
 
 void twilight_state_default_on_leave(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default leave\n");
 }
 
 void twilight_state_default_on_update(double delta, void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default update\n");
 }
 
 void twilight_state_default_on_draw2d(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default draw2d\n");
 }
 
 void twilight_state_default_on_draw3d(void** state_data, Matrix_Data* data)
 {
-	MTRX_PRINTF("default draw3d\n");
 }
