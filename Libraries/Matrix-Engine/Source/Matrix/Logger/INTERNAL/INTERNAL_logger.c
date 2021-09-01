@@ -12,9 +12,9 @@
 Matrix_Logger matrix_logger_construct()
 {
 	Matrix_Logger logger;
-	logger.is_initialised = false;
 	logger.logger_settings = matrix_logger_settings_construct();
 	logger.engine = NULL;
+	logger.time_ = NULL;
 
 	return logger;
 }
@@ -31,7 +31,7 @@ void matrix_logger_destruct(Matrix_Logger* const logger)
 	}
 }
 
-void matrix_logger_init(Matrix_Engine* const engine, Matrix_Logger* const logger)
+void matrix_logger_init(Matrix_Engine* const engine, Matrix_Time* const time_, Matrix_Logger* const logger)
 {
 	if (NULL == engine)
 	{
@@ -46,7 +46,9 @@ void matrix_logger_init(Matrix_Engine* const engine, Matrix_Logger* const logger
 		else
 		{
 			logger->engine = engine;
-			logger->is_initialised = true;
+			logger->time_ = time_;
+
+			MTRX_CORE_PRELOG("logger: initialisation", MATRIX_LOGGER_LEVEL_INFO);
 		}
 	}
 }
@@ -59,11 +61,67 @@ void matrix_logger_shutdown(Matrix_Logger* const logger)
 	}
 	else
 	{
-		logger->is_initialised = false;
+		MTRX_CORE_PRELOG("logger: shutdown", MATRIX_LOGGER_LEVEL_INFO);
 	}
 }
 
-void matrix_general_log(const char* message, const Matrix_Logger_Level level, const uint8_t flags, const Matrix_Logger* const logger)
+void matrix_logger_general_prelog(const char* message, const uint8_t flags, const Matrix_Logger_Level level)
+{
+	const char* owner_color = "";
+	const char* owner_name = "";
+	const char* level_color = "";
+	const char* level_name = "";
+
+	if (MTRX_LOGGER_FLAG_CORE & flags)
+	{
+		owner_color = MATRIX_CONSOLE_COLOR_FG_GREEN;
+		owner_name = "core";
+	}
+	else
+	{
+		owner_color = MATRIX_CONSOLE_COLOR_FG_BLUE;
+		owner_name = "client";
+	}
+
+	switch (level)
+	{
+	case MATRIX_LOGGER_LEVEL_DEBUG:
+		level_color = "";
+		level_name = "debug";
+		break;
+	case MATRIX_LOGGER_LEVEL_TRACE:
+		level_color = MATRIX_CONSOLE_COLOR_FG_PURPLE;
+		level_name = "trace";
+		break;
+	case MATRIX_LOGGER_LEVEL_INFO:
+		level_color = MATRIX_CONSOLE_COLOR_FG_CYAN;
+		level_name = "info";
+		break;
+	case MATRIX_LOGGER_LEVEL_WARN:
+		level_color = MATRIX_CONSOLE_COLOR_FG_YELLOW;
+		level_name = "warn";
+		break;
+	case MATRIX_LOGGER_LEVEL_ERROR:
+		level_color = MATRIX_CONSOLE_COLOR_FG_RED;
+		level_name = "error";
+		break;
+	case MATRIX_LOGGER_LEVEL_CRITICAL:
+		level_color = MATRIX_CONSOLE_COLOR_BG_RED;
+		level_name = "critical";
+		break;
+	default:
+		break;
+	}
+
+	MTRX_PRINTF("[%s%s%s][%s%s%s] %s\n", owner_color, owner_name, MATRIX_CONSOLE_COLOR_RESET, level_color, level_name, MATRIX_CONSOLE_COLOR_RESET, message);
+}
+
+void matrix_logger_core_prelog(const char* message, const Matrix_Logger_Level level)
+{
+	matrix_logger_general_prelog(message, MTRX_LOGGER_FLAG_CORE, level);
+}
+
+void matrix_logger_general_log(const char* message, const Matrix_Logger_Level level, const uint8_t flags, const Matrix_Logger* const logger)
 {
 	if (NULL == logger)
 	{
@@ -71,79 +129,117 @@ void matrix_general_log(const char* message, const Matrix_Logger_Level level, co
 	}
 	else
 	{
-		if (logger->is_initialised)
+		if (logger->logger_settings.is_logging)
 		{
-			if (logger->logger_settings.is_logging)
+			if (level >= logger->logger_settings.minimal_level)
 			{
-				if (level >= logger->logger_settings.minimal_level)
+				char* timestamp = "";
+				const char* owner_color = "";
+				const char* owner_name = "";
+				const char* level_color = "";
+				const char* level_name = "";
+
+				if (logger->logger_settings.is_timestamp)
 				{
-					const char* owner_color = "";
-					const char* owner_name = "";
-					const char* level_color = "";
-					const char* level_name = "";
+					timestamp = malloc(sizeof(*timestamp) * 11);
 
-					char* timestamp = malloc(sizeof(*timestamp) * 11);;
-
-					if (logger->logger_settings.is_timestamp)
-					{
-						const char* aaa = "xx:xx:xx";
-						stbsp_sprintf(timestamp, "[%s]", aaa);
-					}
-					else
-					{
-						timestamp = "";
-					}
-
-					if (NULL == logger->engine)
+					if (NULL == logger->time_)
 					{
 						MTRX_ERROR_UNEXPECTED_NULL;
 					}
 					else
 					{
-						if (MTRX_LOGGER_FLAG_CORE & flags)
+						const char* s1 = "";
+						const char* s2 = "";
+						const char* s3 = "";
+
+						if (9 >= matrix_time_hour_get(logger->time_))
 						{
-							owner_color = MATRIX_CONSOLE_COLOR_FG_GREEN;
-							owner_name = logger->engine->engine_info.ENGINE_NAME;
+							s1 = "0";
 						}
 						else
 						{
-							owner_color = MATRIX_CONSOLE_COLOR_FG_BLUE;
-							owner_name = logger->engine->application.application_info.application_name;
+							//nothing
 						}
-					}
 
-					switch (level)
+						if (9 >= matrix_time_min_get(logger->time_))
+						{
+							s2 = "0";
+						}
+						else
+						{
+							//nothing
+						}
+
+						if (9 >= matrix_time_sec_get(logger->time_))
+						{
+							s3 = "0";
+						}
+						else
+						{
+							//nothing
+						}
+
+						stbsp_sprintf(timestamp, "[%s%i:%s%i:%s%i]", s1, matrix_time_hour_get(logger->time_), s2, matrix_time_min_get(logger->time_), s3, matrix_time_sec_get(logger->time_));
+					}
+				}
+				else
+				{
+					//nothing
+				}
+
+				if (NULL == logger->engine)
+				{
+					MTRX_ERROR_UNEXPECTED_NULL;
+				}
+				else
+				{
+					if (MTRX_LOGGER_FLAG_CORE & flags)
 					{
-					case MATRIX_LOGGER_LEVEL_DEBUG:
-						level_color = "";
-						level_name = "debug";
-						break;
-					case MATRIX_LOGGER_LEVEL_TRACE:
-						level_color = MATRIX_CONSOLE_COLOR_FG_PURPLE;
-						level_name = "trace";
-						break;
-					case MATRIX_LOGGER_LEVEL_INFO:
-						level_color = MATRIX_CONSOLE_COLOR_FG_CYAN;
-						level_name = "info";
-						break;
-					case MATRIX_LOGGER_LEVEL_WARN:
-						level_color = MATRIX_CONSOLE_COLOR_FG_YELLOW;
-						level_name = "warn";
-						break;
-					case MATRIX_LOGGER_LEVEL_ERROR:
-						level_color = MATRIX_CONSOLE_COLOR_FG_RED;
-						level_name = "error";
-						break;
-					case MATRIX_LOGGER_LEVEL_CRITICAL:
-						level_color = MATRIX_CONSOLE_COLOR_BG_RED;
-						level_name = "critical";
-						break;
-					default:
-						break;
+						owner_color = MATRIX_CONSOLE_COLOR_FG_GREEN;
+						owner_name = logger->engine->engine_info.ENGINE_NAME;
 					}
+					else
+					{
+						owner_color = MATRIX_CONSOLE_COLOR_FG_BLUE;
+						owner_name = logger->engine->application.application_info.application_name;
+					}
+				}
 
-					MTRX_PRINTF("%s[%s%s%s][%s%s%s] %s\n", timestamp, owner_color, owner_name, MATRIX_CONSOLE_COLOR_RESET, level_color, level_name, MATRIX_CONSOLE_COLOR_RESET, message);
+				switch (level)
+				{
+				case MATRIX_LOGGER_LEVEL_DEBUG:
+					level_color = "";
+					level_name = "debug";
+					break;
+				case MATRIX_LOGGER_LEVEL_TRACE:
+					level_color = MATRIX_CONSOLE_COLOR_FG_PURPLE;
+					level_name = "trace";
+					break;
+				case MATRIX_LOGGER_LEVEL_INFO:
+					level_color = MATRIX_CONSOLE_COLOR_FG_CYAN;
+					level_name = "info";
+					break;
+				case MATRIX_LOGGER_LEVEL_WARN:
+					level_color = MATRIX_CONSOLE_COLOR_FG_YELLOW;
+					level_name = "warn";
+					break;
+				case MATRIX_LOGGER_LEVEL_ERROR:
+					level_color = MATRIX_CONSOLE_COLOR_FG_RED;
+					level_name = "error";
+					break;
+				case MATRIX_LOGGER_LEVEL_CRITICAL:
+					level_color = MATRIX_CONSOLE_COLOR_BG_RED;
+					level_name = "critical";
+					break;
+				default:
+					break;
+				}
 
+				MTRX_PRINTF("%s[%s%s%s][%s%s%s] %s\n", timestamp, owner_color, owner_name, MATRIX_CONSOLE_COLOR_RESET, level_color, level_name, MATRIX_CONSOLE_COLOR_RESET, message);
+
+				if (logger->logger_settings.is_timestamp)
+				{
 					free(timestamp);
 				}
 				else
@@ -158,12 +254,12 @@ void matrix_general_log(const char* message, const Matrix_Logger_Level level, co
 		}
 		else
 		{
-			MTRX_ERROR_LOGGER_UNINITIALISED;
+			//nothing
 		}
 	}
 }
 
 void matrix_logger_core_log(const char* message, const Matrix_Logger_Level level, const Matrix_Logger* const logger)
 {
-	matrix_general_log(message, level, MTRX_LOGGER_FLAG_CORE, logger);
+	matrix_logger_general_log(message, level, MTRX_LOGGER_FLAG_CORE, logger);
 }

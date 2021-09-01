@@ -1,11 +1,13 @@
 #include "Matrix/Engine/INTERNAL/INTERNAL_engine.h"
 
 #include "Matrix/Application/INTERNAL/INTERNAL_application.h"
+#include "Matrix/Console/console.h"
 #include "Matrix/Core/core.h"
 #include "Matrix/Core/error.h"
 #include "Matrix/Engine/INTERNAL/INTERNAL_engine_data.h"
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger.h"
 #include "Matrix/Statemanager/INTERNAL/INTERNAL_statemanager.h"
+#include "Matrix/Time/INTERNAL/INTERNAL_time.h"
 
 Matrix_Engine_Info matrix_INTERNAL_engine_info_construct()
 {
@@ -22,6 +24,8 @@ void matrix_INTERNAL_engine_init(Matrix_Engine* const engine)
 	}
 	else
 	{
+		MTRX_CORE_PRELOG("engine: initialisation", MATRIX_LOGGER_LEVEL_INFO);
+
 		engine->statemanager.data = &engine->data;
 
 		engine->data.engine = engine;
@@ -36,19 +40,21 @@ void matrix_INTERNAL_engine_init(Matrix_Engine* const engine)
 			engine->application.application_core.engine_setup(engine);
 		}
 
+		matrix_logger_init(engine, &engine->time_, &engine->logger);
+
 		if (NULL != engine->application.application_core.logger_setup)
 		{
 			engine->application.application_core.logger_setup(&engine->logger);
 		}
 
-		matrix_logger_init(engine, &engine->logger);
+		matrix_statemanager_init(&engine->statemanager);
 
 		if (NULL != engine->application.application_core.statemanager_setup)
 		{
 			engine->application.application_core.statemanager_setup(&engine->statemanager);
 		}
 
-		matrix_statemanager_init(&engine->statemanager);
+		matrix_statemanager_begin(&engine->statemanager);
 	}
 }
 
@@ -60,6 +66,7 @@ void matrix_INTERNAL_engine_update(Matrix_Engine* const engine)
 	}
 	else
 	{
+		matrix_time_update(&engine->time_);
 		matrix_statemanager_update(&engine->statemanager);
 	}
 }
@@ -74,6 +81,8 @@ void matrix_INTERNAL_engine_shutdown(Matrix_Engine* const engine)
 	{
 		matrix_statemanager_shutdown(&engine->statemanager);
 		matrix_logger_shutdown(&engine->logger);
+
+		MTRX_CORE_PRELOG("engine: shutdown", MATRIX_LOGGER_LEVEL_INFO);
 	}
 }
 
@@ -82,6 +91,7 @@ Matrix_Engine matrix_engine_construct()
 	Matrix_Engine engine = { matrix_INTERNAL_engine_info_construct() };
 	engine.is_stop = false;
 	engine.engine_settings.i = 0;
+	engine.time_ = matrix_time_construct();
 	engine.logger = matrix_logger_construct();
 	engine.statemanager = matrix_statemanager_construct();
 	engine.application = matrix_applicatione_construct();
@@ -100,6 +110,7 @@ void matrix_engine_destruct(Matrix_Engine* const engine)
 		matrix_application_destruct(&engine->application);
 		matrix_statemanager_destruct(&engine->statemanager);
 		matrix_logger_destruct(&engine->logger);
+		matrix_time_destruct(&engine->time_);
 	}
 }
 

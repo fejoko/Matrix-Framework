@@ -3,4 +3,6 @@
 
 #include "Matrix/Pch/mtrxstdafx.h"
 
+#include <time.h>
+
 #endif // !___MTRX___INTERNAL_MTRXSTDAFX_H

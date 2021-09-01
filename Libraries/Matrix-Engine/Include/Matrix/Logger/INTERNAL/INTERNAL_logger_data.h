@@ -5,12 +5,13 @@
 #include "Matrix/Logger/logger_data.h"
 
 typedef struct Matrix_Engine Matrix_Engine;
+typedef struct Matrix_Time Matrix_Time;
 
 typedef struct Matrix_Logger
 {
-	bool is_initialised;
 	Matrix_Logger_Settings logger_settings;
 	Matrix_Engine* engine;
+	Matrix_Time* time_;
 } Matrix_Logger;
 
 #define MTRX_LOGGER_FLAG_CLIENT 0x00

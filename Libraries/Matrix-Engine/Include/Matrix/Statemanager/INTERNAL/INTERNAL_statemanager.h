@@ -20,4 +20,6 @@ void matrix_statemanager_draw2d(Matrix_Statemanager* const statemanager);
 void matrix_statemanager_draw3d(Matrix_Statemanager* const statemanager);
 void matrix_statemanager_shutdown(Matrix_Statemanager* const statemanager);
 
+void matrix_statemanager_begin(Matrix_Statemanager* const statemanager);
+
 #endif // !___MTRX___INTERNAL_STATEMANAGER_H

@@ -5,6 +5,7 @@
 
 typedef struct Matrix_Application Matrix_Application;
 typedef struct Matrix_Engine Matrix_Engine;
+typedef struct Matrix_Time Matrix_Time;
 typedef struct Matrix_Logger Matrix_Logger;
 typedef struct Matrix_Statemanager Matrix_Statemanager;
 

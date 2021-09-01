@@ -63,29 +63,7 @@ void matrix_statemanager_init(Matrix_Statemanager* const statemanager)
 	}
 	else
 	{
-		if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_load)
-		{
-			//nothing
-		}
-		else
-		{
-			matrix_statemanager_log("statemanager: %s_state load", 0, statemanager);
-
-			MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_load(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
-		}
-
-		MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).is_loadet = true;
-
-		if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_enter)
-		{
-			//nothing
-		}
-		else
-		{
-			matrix_statemanager_log("statemanager: %s_state enter", 0, statemanager);
-
-			MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_enter(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
-		}
+		MTRX_CORE_LOG("statemanager: initialisation", MATRIX_LOGGER_LEVEL_INFO, statemanager->data->logger);
 	}
 }
 
@@ -264,6 +242,43 @@ void matrix_statemanager_shutdown(Matrix_Statemanager* const statemanager)
 			}
 
 			matrix_statemanager_state_core_destruct(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, i - 1, statemanager->states_vec_all).core);
+
+		}
+
+		MTRX_CORE_LOG("statemanager: shutdown", MATRIX_LOGGER_LEVEL_INFO, statemanager->data->logger);
+	}
+}
+
+void matrix_statemanager_begin(Matrix_Statemanager* const statemanager)
+{
+	if (NULL == statemanager)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_load)
+		{
+			//nothing
+		}
+		else
+		{
+			matrix_statemanager_log("statemanager: %s_state load", 0, statemanager);
+
+			MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_load(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
+		}
+
+		MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).is_loadet = true;
+
+		if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_enter)
+		{
+			//nothing
+		}
+		else
+		{
+			matrix_statemanager_log("statemanager: %s_state enter", 0, statemanager);
+
+			MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).core.on_enter(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
 		}
 	}
 }

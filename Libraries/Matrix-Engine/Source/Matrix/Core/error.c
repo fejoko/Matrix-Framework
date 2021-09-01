@@ -7,7 +7,7 @@ void matrix_error_exit(const char* what, const char* code, const char* FILE, con
 {
 	if (MTRX_DEBUG_IS || MTRX_MINSIZEREL_IS)
 	{
-		MTRX_PRINTF("----------\nexit has been called\n\nfile:\t%s\nfunc:\t%s\nline:\t%i\ncode:\t%s\nwhat:\t%s\ndate:\t%s\ntime:\t%s\n\nsee documentation for more information\n\nif you not are a developer please contact same\n----------\n", FILE, func, LINE, code, what, DATE, TIME);
+		MTRX_PRINTF("----------\nexit has been called\n\nfile:\t%s\nfunc:\t%s\nline:\t%i\ncode:\t%s\nwhat:\t%s\ndate:\t%s\ntime:\t%s\n\nsee documentation for more information\n\nif you not are a developer please contact same\n----------\n", strstr(FILE, "Matrix-Framework"), func, LINE, code, what, DATE, TIME);
 	}
 	else
 	{
@@ -21,7 +21,7 @@ void matrix_error_abort(const char* what, const char* code, const char* FILE, co
 {
 	if (MTRX_DEBUG_IS || MTRX_MINSIZEREL_IS)
 	{
-		MTRX_PRINTF("----------\abort has been called\n\nfile:\t%s\nfunc:\t%s\nline:\t%i\nwhat:\t%s\ndate:\t%s\ntime:\t%s\n\nsee documentation for more information\n\nif you not are a developer please contact same\n----------\n", FILE, func, LINE, what, DATE, TIME);
+		MTRX_PRINTF("----------\abort has been called\n\nfile:\t%s\nfunc:\t%s\nline:\t%i\nwhat:\t%s\ndate:\t%s\ntime:\t%s\n\nsee documentation for more information\n\nif you not are a developer please contact same\n----------\n", strstr(FILE, "Matrix-Framework"), func, LINE, what, DATE, TIME);
 	}
 	else
 	{

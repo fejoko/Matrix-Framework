@@ -37,5 +37,5 @@ void matrix_logger_settings_set(Matrix_Logger_Settings logger_settings, Matrix_L
 
 void matrix_logger_client_log(const char* message, const Matrix_Logger_Level level, const Matrix_Logger* const logger)
 {
-	matrix_general_log(message, level, MTRX_LOGGER_FLAG_CLIENT, logger);
+	matrix_logger_general_log(message, level, MTRX_LOGGER_FLAG_CLIENT, logger);
 }
