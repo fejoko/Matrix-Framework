@@ -34,6 +34,7 @@ Matrix_Application_Info matrix_application_info_construct()
 	application_info.build_date = "";
 	application_info.build_time = "";
 	application_info.application_version = MTRX_VERSION_MAKE(0, 0, 0, 0);
+	application_info.application_path_abs = "";
 
 	return application_info;
 }
@@ -113,5 +114,17 @@ void* matrix_application_data_get(const Matrix_Application* const application)
 	else
 	{
 		return application->app_data;
+	}
+}
+
+const char* matrix_application_path_abs_get(const Matrix_Application* const application)
+{
+	if (NULL == application)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return application->application_info.application_path_abs;
 	}
 }

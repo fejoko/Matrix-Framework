@@ -5,6 +5,7 @@
 #include "Matrix/Renderer/renderer.h"
 #include "Matrix/Renderer/INTERNAL/INTERNAL_renderer_data.h"
 #include "Matrix/Renderer/INTERNAL/INTERNAL_renderer_errors.h"
+#include "Matrix/Vector/vector.h"
 
 #ifdef ___MTRX_VULKAN
 #include "Matrix/Renderer/INTERNAL/Vulkan/INTERNAL_vulkan.h"
@@ -42,6 +43,7 @@ Matrix_Renderer matrix_renderer_construct()
 	renderer.engine = NULL;
 	renderer.logger = NULL;
 	renderer.window = NULL;
+	renderer.shader_vec = matrix_vector_construct(sizeof(Matrix_Renderer_Shader), 0);
 	renderer.api_data = NULL;
 
 	MTRX_RENDERER_VULKAN_CONSTRUCT(&renderer);
@@ -62,6 +64,8 @@ void matrix_renderer_destruct(Matrix_Renderer* const renderer)
 		MTRX_RENDERER_VULKAN_DESTRUCT(renderer);
 
 		matrix_renderer_settings_destruct(&renderer->renderer_settings);
+
+		matrix_vector_destruct(&renderer->shader_vec);
 	}
 }
 

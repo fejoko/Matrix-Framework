@@ -23,4 +23,6 @@ void matrix_application_settings_set(const Matrix_Application_Settings applicati
 
 void* matrix_application_data_get(const Matrix_Application* const application);
 
+const char* matrix_application_path_abs_get(const Matrix_Application* const application);
+
 #endif // !___MTRX___APPLICATION_H

@@ -26,6 +26,7 @@ typedef struct Matrix_Application_Info
 	const char* build_date;
 	const char* build_time;
 	uint32_t application_version;
+	const char* application_path_abs;
 } Matrix_Application_Info;
 
 typedef struct Matrix_Application_Settings

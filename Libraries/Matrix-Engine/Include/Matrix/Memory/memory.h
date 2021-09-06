@@ -3,6 +3,6 @@
 
 #include "Matrix/Pch/mtrxstdafx.h"
 
-char* matrix_file_mapp(const char* file_path);
+char* matrix_memory_file_mapp(const char* file_path);
 
 #endif // !___MTRX___MEMORY_H

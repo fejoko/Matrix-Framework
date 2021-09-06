@@ -35,6 +35,10 @@ typedef struct Matrix_Vulkan_Data
 
 	VkImageView* image_view_all;
 
+	VkShaderModule* shader_module_all;
+
+	Matrix_Vector* pipeline_shader_stage_create_info_vec;
+
 } Matrix_Vulkan_Data;
 
 #endif // !___MTRX___INTERNAL_VULKAN_DATA_H

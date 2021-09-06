@@ -26,7 +26,7 @@ MTRX_ERROR_EXIT("realloc failed", "MTRX000x001x003g");
 MTRX_ERROR_EXIT("unexpected NULL", "MTRX000x002x000g");
 
 #define MTRX_ERROR_UNEXPECTED_VALUE \
-MTRX_ERROR_EXIT("unexpected VALUE", "MTRX000x003x000g");
+MTRX_ERROR_EXIT("unexpected value", "MTRX000x003x000g");
 //----------------------------------
 
 #endif // !___MTRX___ERROR_H

@@ -1,9 +1,14 @@
 #include "Matrix/Renderer/renderer.h"
 
+#include "Matrix/Application/application.h"
 #include "Matrix/Logger/logger_data.h"
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger.h"
+#include "Matrix/Memory/memory.h"
 #include "Matrix/Renderer/INTERNAL/INTERNAL_renderer_data.h"
 #include "Matrix/Renderer/INTERNAL/INTERNAL_renderer_errors.h"
+#include "Matrix/Vector/vector.h"	
+
+#include "Stb/stb_sprintf.h"
 
 #ifdef ___MTRX_VULKAN
 #include "Matrix/Renderer/INTERNAL/Vulkan/INTERNAL_vulkan.h"
@@ -41,7 +46,7 @@ void matrix_renderer_settings_destruct(Matrix_Renderer_Settings* const renderer_
 	}
 }
 
-void matrix_renderer_settings_set(const Matrix_Renderer_Settings renderer_settings, Matrix_Renderer* renderer)
+void matrix_renderer_settings_set(const Matrix_Renderer_Settings renderer_settings, Matrix_Renderer* const renderer)
 {
 	if (NULL == renderer)
 	{
@@ -117,6 +122,104 @@ void matrix_renderer_stop(Matrix_Renderer* const renderer)
 		else
 		{
 			MTRX_CORE_LOG("renderer: is already stopped", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
+		}
+	}
+}
+
+void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Shader_Type _shader_type, Matrix_Renderer* const renderer)
+{
+	if (NULL == shader_path_rel)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (strcmp("", shader_path_rel))
+		{
+			if (NULL == matrix_application_path_abs_get(renderer->application))
+			{
+				MTRX_ERROR_UNEXPECTED_NULL;
+			}
+			else
+			{
+				if (strcmp("", matrix_application_path_abs_get(renderer->application)))
+				{
+					char* rel = "";
+
+					if (strcmp(".", &shader_path_rel[0]))
+					{
+						rel = shader_path_rel;
+					}
+					else
+					{
+						rel = strstr(shader_path_rel, "/");
+					}
+
+					size_t len = strlen(rel);
+					len += strlen(matrix_application_path_abs_get(renderer->application));
+
+					char* path = NULL;
+					path = malloc(sizeof(*path) * len + 1);
+					if (NULL == path)
+					{
+						MTRX_ERROR_UNEXPECTED_NULL;
+					}
+					else
+					{
+						stbsp_sprintf(path, "%s%s", matrix_application_path_abs_get(renderer->application), rel);
+
+						uint32_t file_size = 0;
+						char* file_data = matrix_memory_file_mapp(path, &file_size);
+
+						char* message = NULL;
+						if (NULL == file_data)
+						{
+							message = malloc(36 + strlen(path) + 1);
+							if (NULL == message)
+							{
+								MTRX_ERROR_UNEXPECTED_NULL;
+							}
+							else
+							{
+								stbsp_sprintf(message, "renderer: failed loading shader at %s", path);
+								MTRX_CORE_LOG(message, MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
+								free(message);
+							}
+						}
+						else
+						{
+							message = malloc(41 + strlen(path) + 1);
+							if (NULL == message)
+							{
+								MTRX_ERROR_UNEXPECTED_NULL;
+							}
+							else
+							{
+								stbsp_sprintf(message, "renderer: succeeded loading shader at \"%s\"", path);
+								MTRX_CORE_LOG(message, MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+								free(message);
+							}
+
+							Matrix_Renderer_Shader new_shader;
+							new_shader.shader_type = _shader_type;
+							new_shader.shader_size = file_size;
+							new_shader.shader_data = file_data;
+
+							matrix_vector_push_back(&new_shader, renderer->shader_vec);
+						}
+
+						free(path);
+					}
+				}
+				else
+				{
+					MTRX_ERROR_UNEXPECTED_VALUE;
+				}
+			}
+		}
+		else
+		{
+			MTRX_ERROR_UNEXPECTED_VALUE;
 		}
 	}
 }

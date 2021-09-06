@@ -8,6 +8,7 @@
 #include "Matrix/Renderer/INTERNAL/Vulkan/INTERNAL_vulkan_data.h"
 #include "Matrix/Renderer/INTERNAL/Vulkan/INTERNAL_vulkan_errors.h"
 #include "Matrix/Renderer/INTERNAL/Vulkan/INTERNAL_vulkan_helpers.h"
+#include "Matrix/Vector/vector.h"
 #include "Matrix/Window/INTERNAL/INTERNAL_window.h"
 #include "Matrix/Window/INTERNAL/INTERNAL_window_data.h"
 #include "Matrix/Window/INTERNAL/INTERNAL_window_errors.h"
@@ -82,6 +83,8 @@ void matrix_vulkan_start(Matrix_Renderer* const renderer)
 		matrix_vulkan_create_surface(renderer->api_data, renderer);
 		matrix_vulkan_create_swapchain(renderer->api_data, renderer);
 		matrix_vulkan_create_imageviews(renderer->api_data, renderer);
+		matrix_vulkan_create_shaders(renderer->api_data, renderer);
+		matrix_vulkan_create_pipeline(renderer->api_data, renderer);
 	}
 }
 
@@ -105,6 +108,8 @@ void matrix_vulkan_stop(Matrix_Renderer* const renderer)
 	}
 	else
 	{
+		matrix_vulkan_destroy_pipeline(renderer->api_data, renderer);
+		matrix_vulkan_destroy_shaders(renderer->api_data, renderer);
 		matrix_vulkan_destroy_imageviews(renderer->api_data, renderer);
 		matrix_vulkan_destroy_swapchain(renderer->api_data, renderer);
 		matrix_vulkan_destroy_surface(renderer->api_data, renderer);
@@ -575,12 +580,116 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 
 void matrix_vulkan_create_shaders(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
 {
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			MTRX_CORE_LOG("renderer: shader creation", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 
+			api_data->shader_module_all = NULL;
+			api_data->shader_module_all = malloc(sizeof(*api_data->shader_module_all) * matrix_vector_capacity(renderer->shader_vec));
+			if (NULL == api_data->shader_module_all)
+			{
+				MTRX_ERROR_UNEXPECTED_NULL;
+			}
+			else
+			{
+				for (size_t i = 0; i < matrix_vector_capacity(renderer->shader_vec); i++)
+				{
+					VkShaderModuleCreateInfo shader_module_create_info;
+					shader_module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+					shader_module_create_info.pNext = NULL;
+					shader_module_create_info.flags = 0;
+					shader_module_create_info.codeSize = MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_size;
+					shader_module_create_info.pCode = MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_data;
+
+					VkResult result = vkCreateShaderModule(api_data->device, &shader_module_create_info, NULL, &api_data->shader_module_all[i]);
+					int decimals = 1;
+					for (int w = i + 1; w >= 10; w /= 10)
+					{
+						decimals++;
+					}
+					char* message = NULL;
+					message = malloc(sizeof(*message) * (25 + decimals));
+					stbsp_sprintf(message, "vkCreateShaderModule (%lu)", i + 1);
+					matrix_vulkan_assert_result(message, result, renderer);
+				}
+			}
+		}
+	}
 }
 
 void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
 {
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			MTRX_CORE_LOG("renderer: pipeline creation", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 
+			api_data->pipeline_shader_stage_create_info_vec = matrix_vector_construct(sizeof(VkPipelineShaderStageCreateInfo), matrix_vector_capacity(renderer->shader_vec));
+
+			for (size_t i = 0; i < matrix_vector_capacity(renderer->shader_vec); i++)
+			{
+				VkPipelineShaderStageCreateInfo pipeline_shader_stage_create_info;
+				pipeline_shader_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				pipeline_shader_stage_create_info.pNext = NULL;
+				pipeline_shader_stage_create_info.flags = 0;
+				switch (MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_type)
+				{
+				case MATRIX_RENDERER_SHADER_TYPE_VERTEX:
+					pipeline_shader_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+					break;
+				case MATRIX_RENDERER_SHADER_TYPE_FRAGMENT:
+					pipeline_shader_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+					break;
+				default:
+					break;
+				}
+				pipeline_shader_stage_create_info.module = api_data->shader_module_all[i];
+				pipeline_shader_stage_create_info.pName = "main";
+				pipeline_shader_stage_create_info.pSpecializationInfo = NULL;
+
+				MTRX_VECTOR_AT_AS(VkPipelineShaderStageCreateInfo, i, api_data->pipeline_shader_stage_create_info_vec) = pipeline_shader_stage_create_info;
+			}
+
+			VkPipelineVertexInputStateCreateInfo pipeline_vertex_input_state_create_info;
+			pipeline_vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+			pipeline_vertex_input_state_create_info.pNext = NULL;
+			pipeline_vertex_input_state_create_info.flags = 0;
+			pipeline_vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
+			pipeline_vertex_input_state_create_info.pVertexBindingDescriptions = NULL;
+			pipeline_vertex_input_state_create_info.vertexAttributeDescriptionCount = 0;
+			pipeline_vertex_input_state_create_info.pVertexAttributeDescriptions = NULL;
+
+			VkPipelineInputAssemblyStateCreateInfo pipelien_input_assembly_state_create_info;
+			pipelien_input_assembly_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+			pipelien_input_assembly_state_create_info.pNext = NULL;
+			pipelien_input_assembly_state_create_info.flags = 0;
+			pipelien_input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			pipelien_input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
+
+			//GOON
+
+			matrix_vector_destruct(&api_data->pipeline_shader_stage_create_info_vec);
+		}
+	}
 }
 
 void matrix_vulkan_destroy_surface(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
@@ -690,12 +799,45 @@ void matrix_vulkan_destroy_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Rende
 
 void matrix_vulkan_destroy_shaders(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
 {
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			for (size_t i = 0; i < matrix_vector_capacity(renderer->shader_vec); i++)
+			{
+				vkDestroyShaderModule(api_data->device, api_data->shader_module_all[i], NULL);
+			}
 
+			MTRX_CORE_LOG("renderer: shader destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+		}
+	}
 }
 
 void matrix_vulkan_destroy_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
 {
-
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			MTRX_CORE_LOG("renderer: pipeline destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+		}
+	}
 }
 
 void matrix_vulkan_destroy_instance(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)

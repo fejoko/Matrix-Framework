@@ -18,6 +18,7 @@ void matrix_application_attach(Matrix_Application* const application)
 	application_info.build_date = __DATE__;
 	application_info.build_time = __TIME__;
 	application_info.application_version = MTRX_VERSION_MAKE(0, 0, 1, 0);
+	application_info.application_path_abs = ___TWLT_DIR;
 	matrix_application_info_set(application_info, application);
 	matrix_application_info_destruct(&application_info);
 
@@ -110,6 +111,8 @@ void twilight_state_default_on_destruction(void** state_data, Matrix_Data* data)
 
 void twilight_state_default_on_load(void** state_data, Matrix_Data* data)
 {
+	matrix_renderer_shader_load("./Resources/vert.spv", MATRIX_RENDERER_SHADER_TYPE_VERTEX, data->renderer);
+	matrix_renderer_shader_load("./Resources/frag.spv", MATRIX_RENDERER_SHADER_TYPE_VERTEX, data->renderer);
 }
 
 void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)
