@@ -17,4 +17,7 @@ void matrix_window_close(Matrix_Window* const window);
 bool matrix_window_opened_is(Matrix_Window* const window);
 bool matrix_window_should_close(Matrix_Window* const window);
 
+int matrix_window_width_get(Matrix_Window* const window);
+int matrix_window_height_get(Matrix_Window* const window);
+
 #endif // !___MTRX___WINDOW_H

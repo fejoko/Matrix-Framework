@@ -12,7 +12,7 @@ void matrix_vulkan_assert_result(const char* what, VkResult result, Matrix_Rende
 	if (VK_SUCCESS == result)
 	{
 		char* message = NULL;
-		message = malloc(sizeof(*message) * (37 + strlen(what) + 1));
+		message = malloc(sizeof(*message) * (37 + strlen(what)));
 		if (NULL == message)
 		{
 			MTRX_ERROR_UNEXPECTED_NULL;

@@ -18,6 +18,7 @@ typedef struct Matrix_Vulkan_Data
 
 	uint32_t queue_family_count;
 	VkQueueFamilyProperties* queue_family_properties;
+	VkBool32 surface_support_is;
 	VkDevice device;
 	VkQueue queue;
 
@@ -29,8 +30,10 @@ typedef struct Matrix_Vulkan_Data
 	VkPresentModeKHR* present_mode_all;
 
 	VkSwapchainKHR swapchain;
+	uint32_t swapchain_image_count;
+	VkImage* swapchain_image_all;
 
-	VkImageView image_view;
+	VkImageView* image_view_all;
 
 } Matrix_Vulkan_Data;
 

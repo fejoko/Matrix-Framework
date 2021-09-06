@@ -39,6 +39,7 @@ Matrix_Window matrix_window_construct()
 	window.logger = NULL;
 	window.width = 0;
 	window.height = 0;
+	window.title = "";
 	window.api_data = NULL;
 
 	MTRX_WINDOW_GLFW_CONSTRUCT(&window);

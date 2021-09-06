@@ -69,20 +69,31 @@ void matrix_window_open(int width, int height, const char* title, Matrix_Window*
 		}
 		else
 		{
-			window->is_opened = true;
-
-			switch (window->window_settings.window_api)
+			if (width > 0 && height > 0)
 			{
-			case MATRIX_WINDOW_API_NONE:
-				break;
-			case MATRIX_WINDOW_API_GLFW:
-				MTRX_WINDOW_GLFW_OPEN(width, height, title, window);
-				break;
-			case MATRIX_WINDOW_API_WINDOWS:
-				break;
-			default:
-				MTRX_ERROR_WINDOW_API_OUTOFBOUND;
-				break;
+				window->width = width;
+				window->height = height;
+				window->title = title;
+
+				window->is_opened = true;
+
+				switch (window->window_settings.window_api)
+				{
+				case MATRIX_WINDOW_API_NONE:
+					break;
+				case MATRIX_WINDOW_API_GLFW:
+					MTRX_WINDOW_GLFW_OPEN(width, height, title, window);
+					break;
+				case MATRIX_WINDOW_API_WINDOWS:
+					break;
+				default:
+					MTRX_ERROR_WINDOW_API_OUTOFBOUND;
+					break;
+				}
+			}
+			else
+			{
+				MTRX_CORE_LOG("window: could not open window -> width and height have to be > 0", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
 			}
 		}
 	}
@@ -123,7 +134,14 @@ void matrix_window_close(Matrix_Window* const window)
 
 bool matrix_window_opened_is(Matrix_Window* const window)
 {
-	return window->is_opened;
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return window->is_opened;
+	}
 }
 
 bool matrix_window_should_close(Matrix_Window* const window)
@@ -146,5 +164,29 @@ bool matrix_window_should_close(Matrix_Window* const window)
 	else
 	{
 		MTRX_CORE_LOG("window: matrix_window_should_close failed -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
+	}
+}
+
+int matrix_window_width_get(Matrix_Window* const window)
+{
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return window->width;
+	}
+}
+
+int matrix_window_height_get(Matrix_Window* const window)
+{
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return window->height;
 	}
 }
