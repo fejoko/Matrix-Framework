@@ -7,12 +7,16 @@ typedef struct Matrix_Application Matrix_Application;
 typedef struct Matrix_Engine Matrix_Engine;
 typedef struct Matrix_Time Matrix_Time;
 typedef struct Matrix_Logger Matrix_Logger;
+typedef struct Matrix_Window Matrix_Window;
+typedef struct Matrix_Renderer Matrix_Renderer;
 typedef struct Matrix_Statemanager Matrix_Statemanager;
 
 typedef struct Matrix_Application_Core
 {
 	void (*engine_setup)(Matrix_Engine* engine);
 	void (*logger_setup)(Matrix_Logger* logger);
+	void (*window_setup)(Matrix_Window* window);
+	void (*renderer_setup)(Matrix_Renderer* renderer);
 	void (*statemanager_setup)(Matrix_Statemanager* statemanager);
 } Matrix_Application_Core;
 
@@ -26,7 +30,7 @@ typedef struct Matrix_Application_Info
 
 typedef struct Matrix_Application_Settings
 {
-	int i;
+	bool is_prelogging;
 } Matrix_Application_Settings;
 
 #endif // !___MTRX___APPLICATION_DATA_H

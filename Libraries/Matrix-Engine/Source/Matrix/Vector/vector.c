@@ -11,7 +11,8 @@ Matrix_Vector* matrix_vector_construct(const size_t element_size, const size_t v
 	}
 	else
 	{
-		Matrix_Vector* vector = malloc(sizeof(*vector));
+		Matrix_Vector* vector = NULL;
+		vector = malloc(sizeof(*vector));
 		if (NULL == vector)
 		{
 			MTRX_ERROR_MALLOC_FAILED;
@@ -27,6 +28,7 @@ Matrix_Vector* matrix_vector_construct(const size_t element_size, const size_t v
 			}
 			else
 			{
+				vector->vector_data = NULL;
 				vector->vector_data = malloc(element_size * vector_capacity);
 				if (NULL == vector->vector_data)
 				{
@@ -235,6 +237,7 @@ void matrix_vector_push_back(char* const element, Matrix_Vector* const vector)
 			{
 				if (vector->vector_capacity < 1)
 				{
+					vector->vector_data = NULL;
 					vector->vector_data = malloc(vector->element_size);
 					if (NULL == vector->vector_data)
 					{
@@ -267,7 +270,8 @@ void matrix_vector_push_back(char* const element, Matrix_Vector* const vector)
 				}
 				else
 				{
-					char* temp = realloc(vector->vector_data, vector->element_size * (vector->vector_capacity + 1));
+					char* temp = NULL;
+					temp = realloc(vector->vector_data, vector->element_size * (vector->vector_capacity + 1));
 					if (NULL == temp)
 					{
 						MTRX_ERROR_REALLOC_FAILED;
@@ -328,7 +332,8 @@ void matrix_vector_pop_back(Matrix_Vector* const vector)
 					}
 					else
 					{
-						char* temp = realloc(vector->vector_data, vector->element_size * (vector->vector_capacity - 1));
+						char* temp = NULL;
+						temp = realloc(vector->vector_data, vector->element_size * (vector->vector_capacity - 1));
 						if (NULL == vector->vector_data)
 						{
 							MTRX_ERROR_REALLOC_FAILED;
@@ -371,7 +376,8 @@ void matrix_vector_resize(const size_t capacity, Matrix_Vector* const vector)
 				}
 				else
 				{
-					char* temp = realloc(vector->vector_data, vector->element_size * (capacity));
+					char* temp = NULL;
+					temp = realloc(vector->vector_data, vector->element_size * (capacity));
 					if (NULL == temp)
 					{
 						MTRX_ERROR_UNEXPECTED_NULL;

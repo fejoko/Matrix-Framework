@@ -10,7 +10,7 @@ typedef enum Matrix_Logger_Level Matrix_Logger_Level;
 Matrix_Logger_Settings matrix_logger_settings_construct();
 void matrix_logger_settings_destruct(Matrix_Logger_Settings* const logger_settings);
 
-void matrix_logger_settings_set(Matrix_Logger_Settings logger_settings, Matrix_Logger* logger);
+void matrix_logger_settings_set(const Matrix_Logger_Settings logger_settings, Matrix_Logger* logger);
 
 void matrix_logger_client_log(const char* message, const Matrix_Logger_Level level, const Matrix_Logger* const logger);
 

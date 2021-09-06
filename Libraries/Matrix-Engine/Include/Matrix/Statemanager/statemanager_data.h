@@ -19,7 +19,8 @@ typedef struct Matrix_Statemanager_State_Core
 
 typedef struct Matrix_Statemanager_Settings
 {
-	bool is_state_logging;
+	bool is_draw2d;
+	bool is_draw3d;
 } Matrix_Statemanager_Settings;
 
 #endif // !___MTRX___STATEMANAGER_DATA_H

@@ -5,6 +5,8 @@
 
 void twilight_engine_setup(Matrix_Engine* engine);
 void twilight_logger_setup(Matrix_Logger* logger);
+void twilight_window_setup(Matrix_Window* window);
+void twilight_renderer_setup(Matrix_Renderer* renderer);
 void twilight_statemanager_setup(Matrix_Statemanager* statemanager);
 
 void twilight_state_default_on_creation(void** state_data, Matrix_Data* data);

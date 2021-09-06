@@ -20,12 +20,18 @@
 #include "Matrix/Logger/logger.h"
 #include "Matrix/Logger/logger_data.h"
 
+#include "Matrix/Renderer/renderer.h"
+#include "Matrix/Renderer/renderer_data.h"
+
 #include "Matrix/Statemanager/statemanager.h"
 #include "Matrix/Statemanager/statemanager_data.h"
 
 #include "Matrix/Time/time.h"
 
 #include "Matrix/Vector/vector.h"
+
+#include "Matrix/Window/window.h"
+#include "Matrix/Window/window_data.h"
 
 //----------entry point----------
 #include "Matrix/Core/main.h"

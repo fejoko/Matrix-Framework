@@ -3,15 +3,9 @@
 
 #include "Matrix/Core/error.h"
 
-///----------vector errors----------
-//define MTRX_ERROR_VECTOR_INVALID_ELEMENT_SIZE \
-//TRX_ERROR_EXIT("invalid vector_element_size", "MTRX000x001x000v");
-//
-//define MTRX_ERROR_VECTOR_INVALID_CAPACITY \
-//TRX_ERROR_EXIT("invalid vector_capacity", "MTRX000x002x000v");
-//
-//define MTRX_ERROR_VECTOR_INVALID_INDEX \
-//TRX_ERROR_EXIT("invalid vector_index", "MTRX000x003x000v");
-///----------------------------------
+//----------renderer errors----------
+#define MTRX_ERROR_RENDERER_API_OUTOFBOUND \
+MTRX_ERROR_EXIT("renderer_api reached undefined value", "MTRX000x001x000r");
+//----------------------------------
 
 #endif // !___MTRX___INTERNAL_RENDERER_ERRORS_H

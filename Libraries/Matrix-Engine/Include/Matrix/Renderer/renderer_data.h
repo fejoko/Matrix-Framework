@@ -3,9 +3,16 @@
 
 #include "Matrix/Pch/mtrxstdafx.h"
 
+typedef enum Matrix_Renderer_Api
+{
+	MATRIX_RENDERER_API_NONE,
+	MATRIX_RENDERER_API_VULKAN,
+	MATRIX_RENDERER_API_OPENGL,
+} Matrix_Renderer_Api;
+
 typedef struct Matrix_Renderer_Settings
 {
-	bool is_;
+	Matrix_Renderer_Api renderer_api;
 } Matrix_Renderer_Settings;
 
 #endif // !___MTRX___RENDERER_DATA_H

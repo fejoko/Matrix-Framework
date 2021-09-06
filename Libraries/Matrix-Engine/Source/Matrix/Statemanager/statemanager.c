@@ -12,7 +12,8 @@
 Matrix_Statemanager_Settings matrix_statemanager_settings_construct()
 {
 	Matrix_Statemanager_Settings statemanager_settings;
-	statemanager_settings.is_state_logging = false;
+	statemanager_settings.is_draw2d = false;
+	statemanager_settings.is_draw3d = false;
 
 	return statemanager_settings;
 }
@@ -107,7 +108,7 @@ void matrix_statemanager_state_create(const Matrix_Statemanager_State_Core state
 				}
 				else
 				{
-					matrix_statemanager_log("statemanager: %s_state creation", matrix_vector_capacity(statemanager->states_vec_all) - 1, statemanager);
+					MTRX_STATEMANAGER_LOG("statemanager: %s_state creation", matrix_vector_capacity(statemanager->states_vec_all) - 1, statemanager);
 
 					state_core.on_creation(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, matrix_vector_capacity(statemanager->states_vec_all) - 1, statemanager->states_vec_all).state_data, statemanager->data);
 				}
@@ -159,7 +160,7 @@ void matrix_statemanager_state_create_default(const Matrix_Statemanager_State_Co
 				}
 				else
 				{
-					matrix_statemanager_log("statemanager: %s_state creation", 0, statemanager);
+					MTRX_STATEMANAGER_LOG("statemanager: %s_state creation", 0, statemanager);
 
 					state_core.on_creation(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
 				}
@@ -209,7 +210,7 @@ void matrix_statemanager_state_load(const char* state_name, Matrix_Statemanager*
 				}
 				else
 				{
-					matrix_statemanager_log("statemanager: %s_state load", index_new, statemanager);
+					MTRX_STATEMANAGER_LOG("statemanager: %s_state load", index_new, statemanager);
 
 					MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, index_new, statemanager->states_vec_all).core.on_load(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
 				}
@@ -257,7 +258,7 @@ void matrix_statemanager_state_unload(const char* state_name, Matrix_Statemanage
 				}
 				else
 				{
-					matrix_statemanager_log("statemanager: %s_state unload", statemanager->state_index_top, statemanager);
+					MTRX_STATEMANAGER_LOG("statemanager: %s_state unload", statemanager->state_index_top, statemanager);
 
 					MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, statemanager->state_index_top, statemanager->states_vec_all).core.on_unload(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
 				}
@@ -352,7 +353,7 @@ void matrix_statemanager_state_enter(const char* state_name, Matrix_Statemanager
 				{
 					MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, statemanager->state_index_top, statemanager->states_vec_all).core.on_leave(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
 
-					matrix_statemanager_log("statemanager: %s_state leave", statemanager->state_index_top, statemanager);
+					MTRX_STATEMANAGER_LOG("statemanager: %s_state leave", statemanager->state_index_top, statemanager);
 				}
 
 				if (NULL == MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, index_new, statemanager->states_vec_all).core.on_enter)
@@ -361,7 +362,7 @@ void matrix_statemanager_state_enter(const char* state_name, Matrix_Statemanager
 				}
 				else
 				{
-					matrix_statemanager_log("statemanager: %s_state enter", index_new, statemanager);
+					MTRX_STATEMANAGER_LOG("statemanager: %s_state enter", index_new, statemanager);
 
 					MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, index_new, statemanager->states_vec_all).core.on_enter(&MTRX_VECTOR_AT_AS(Matrix_Statemanager_State, 0, statemanager->states_vec_all).state_data, statemanager->data);
 				}

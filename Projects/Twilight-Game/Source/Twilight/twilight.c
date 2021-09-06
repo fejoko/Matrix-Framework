@@ -7,6 +7,8 @@ void matrix_application_attach(Matrix_Application* const application)
 	Matrix_Application_Core application_core = matrix_application_core_construct();
 	application_core.engine_setup = twilight_engine_setup;
 	application_core.logger_setup = twilight_logger_setup;
+	application_core.window_setup = twilight_window_setup;
+	application_core.renderer_setup = twilight_renderer_setup;
 	application_core.statemanager_setup = twilight_statemanager_setup;
 	matrix_application_core_set(application_core, application);
 	matrix_application_core_destruct(&application_core);
@@ -20,7 +22,7 @@ void matrix_application_attach(Matrix_Application* const application)
 	matrix_application_info_destruct(&application_info);
 
 	Matrix_Application_Settings application_settings = matrix_application_settings_construct();
-	application_settings.i = 0;
+	application_settings.is_prelogging = true;
 	matrix_application_settings_set(application_settings, application);
 	matrix_application_settings_destruct(&application_settings);
 }
@@ -40,15 +42,32 @@ void twilight_logger_setup(Matrix_Logger* logger)
 	Matrix_Logger_Settings logger_settings = matrix_logger_settings_construct();
 	logger_settings.is_logging = true;
 	logger_settings.is_timestamp = true;
-	logger_settings.minimal_level = MATRIX_LOGGER_LEVEL_TRACE;
+	logger_settings.minimal_level = MATRIX_LOGGER_LEVEL_DEBUG;
 	matrix_logger_settings_set(logger_settings, logger);
 	matrix_logger_settings_destruct(&logger_settings);
+}
+
+void twilight_window_setup(Matrix_Window* window)
+{
+	Matrix_Window_Settings window_settings = matrix_window_settings_construct();
+	window_settings.window_api = MATRIX_WINDOW_API_GLFW;
+	matrix_window_settings_set(window_settings, window);
+	matrix_window_settings_destruct(&window_settings);
+}
+
+void twilight_renderer_setup(Matrix_Renderer* renderer)
+{
+	Matrix_Renderer_Settings renderer_settings = matrix_renderer_settings_construct();
+	renderer_settings.renderer_api = MATRIX_RENDERER_API_VULKAN;
+	matrix_renderer_settings_set(renderer_settings, renderer);
+	matrix_renderer_settings_destruct(&renderer_settings);
 }
 
 void twilight_statemanager_setup(Matrix_Statemanager* statemanager)
 {
 	Matrix_Statemanager_Settings statemanager_settings = matrix_statemanager_settings_construct();
-	statemanager_settings.is_state_logging = true;
+	statemanager_settings.is_draw2d = false;
+	statemanager_settings.is_draw3d = false;
 	matrix_statemanager_settings_set(statemanager_settings, statemanager);
 	matrix_statemanager_settings_destruct(&statemanager_settings);
 
@@ -99,15 +118,21 @@ void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)
 
 void twilight_state_default_on_enter(void** state_data, Matrix_Data* data)
 {
+	matrix_window_open(1920, 1080, "twilight", data->window);
+	matrix_renderer_start(data->renderer);
 }
 
 void twilight_state_default_on_leave(void** state_data, Matrix_Data* data)
 {
+	matrix_renderer_stop(data->renderer);
 }
 
 void twilight_state_default_on_update(double delta, void** state_data, Matrix_Data* data)
 {
-	matrix_engine_stop(data->engine);
+	if (matrix_window_should_close(data->window))
+	{
+		matrix_engine_stop(data->engine);
+	}
 }
 
 void twilight_state_default_on_draw2d(void** state_data, Matrix_Data* data)

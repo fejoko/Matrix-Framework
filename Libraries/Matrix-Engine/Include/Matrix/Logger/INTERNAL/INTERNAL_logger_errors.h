@@ -3,9 +3,9 @@
 
 #include "Matrix/Core/error.h"
 
-////----------logger errors----------
-//#define MTRX_ERROR_LOGGER_UNINITIALISED \
-//MTRX_ERROR_EXIT("cannot log: logger uninitialised", "MTRX000x001x000l");
-////----------------------------------
+//----------logger errors----------
+#define MTRX_ERROR_LOGGER_LEVEL_OUTOFBOUND \
+MTRX_ERROR_EXIT("logger_level reached undefined value", "MTRX000x001x000l");
+//----------------------------------
 
 #endif // !___MTRX___INTERNAL_LOGGER_ERRORS_H

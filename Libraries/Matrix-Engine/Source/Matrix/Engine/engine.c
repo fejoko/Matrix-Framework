@@ -34,7 +34,7 @@ void matrix_engine_settings_destruct(Matrix_Engine_Settings* const engine_settin
 	}
 }
 
-void matrix_engine_settings_set(Matrix_Engine_Settings engine_settings, Matrix_Engine* engine)
+void matrix_engine_settings_set(const Matrix_Engine_Settings engine_settings, Matrix_Engine* engine)
 {
 	if (NULL == engine)
 	{

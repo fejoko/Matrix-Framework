@@ -10,6 +10,6 @@
 int main(const int argc, const char** const argv)
 {
 	Matrix_Engine engine = matrix_engine_construct();
-	matrix_engine_run(&engine);
+	matrix_engine_start(&engine);
 	matrix_engine_destruct(&engine);
 }

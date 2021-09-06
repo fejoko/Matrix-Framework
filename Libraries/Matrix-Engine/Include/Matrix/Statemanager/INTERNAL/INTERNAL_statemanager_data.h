@@ -5,6 +5,7 @@
 #include "Matrix/Statemanager/statemanager_data.h"
 
 typedef struct Matrix_Vector Matrix_Vector;
+typedef struct Matrix_Logger Matrix_Logger;
 typedef struct Matrix_Data Matrix_Data;
 
 typedef struct Matrix_Statemanager_State
@@ -20,6 +21,7 @@ typedef struct Matrix_Statemanager
 	size_t state_index_top;
 	bool state_default_pushed;
 	Matrix_Statemanager_Settings statemanager_settings;
+	Matrix_Logger* logger;
 	Matrix_Data* data;
 } Matrix_Statemanager;
 

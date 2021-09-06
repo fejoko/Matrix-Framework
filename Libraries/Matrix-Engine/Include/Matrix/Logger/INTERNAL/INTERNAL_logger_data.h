@@ -5,12 +5,14 @@
 #include "Matrix/Logger/logger_data.h"
 
 typedef struct Matrix_Engine Matrix_Engine;
+typedef struct Matrix_Application Matrix_Application;
 typedef struct Matrix_Time Matrix_Time;
 
 typedef struct Matrix_Logger
 {
 	Matrix_Logger_Settings logger_settings;
 	Matrix_Engine* engine;
+	Matrix_Application* application;
 	Matrix_Time* time_;
 } Matrix_Logger;
 

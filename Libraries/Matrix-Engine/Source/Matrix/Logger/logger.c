@@ -23,7 +23,7 @@ void matrix_logger_settings_destruct(Matrix_Logger_Settings* const logger_settin
 	}
 }
 
-void matrix_logger_settings_set(Matrix_Logger_Settings logger_settings, Matrix_Logger* logger)
+void matrix_logger_settings_set(const Matrix_Logger_Settings logger_settings, Matrix_Logger* logger)
 {
 	if (NULL == logger)
 	{

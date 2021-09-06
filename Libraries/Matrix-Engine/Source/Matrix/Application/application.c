@@ -9,6 +9,8 @@ Matrix_Application_Core matrix_application_core_construct()
 	Matrix_Application_Core application_core;
 	application_core.engine_setup = NULL;
 	application_core.logger_setup = NULL;
+	application_core.window_setup = NULL;
+	application_core.renderer_setup = NULL;
 	application_core.statemanager_setup = NULL;
 
 	return application_core;
@@ -50,7 +52,7 @@ void matrix_application_info_destruct(Matrix_Application_Info* const application
 Matrix_Application_Settings matrix_application_settings_construct()
 {
 	Matrix_Application_Settings application_settings;
-	application_settings.i = 0;
+	application_settings.is_prelogging = false;
 
 	return application_settings;
 }
