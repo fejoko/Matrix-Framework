@@ -15,4 +15,6 @@ void matrix_glfw_destruct(Matrix_Window* const window);
 
 bool matrix_glfw_should_close(Matrix_Window* const window);
 
+void* matrix_glfw_raw_get(Matrix_Window* const window);
+
 #endif // !___MTRX___INTERNAL_GLDW_H

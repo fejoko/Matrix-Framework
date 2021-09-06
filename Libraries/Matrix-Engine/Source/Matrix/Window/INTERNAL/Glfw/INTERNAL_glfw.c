@@ -80,6 +80,7 @@ void matrix_glfw_close(Matrix_Window* const window)
 	}
 	else
 	{
+		glfwDestroyWindow(((Matrix_Glfw_Data*)window->api_data)->glfw_window);
 	}
 }
 
@@ -116,5 +117,17 @@ bool matrix_glfw_should_close(Matrix_Window* const window)
 	else
 	{
 		return glfwWindowShouldClose(((Matrix_Glfw_Data*)window->api_data)->glfw_window);
+	}
+}
+
+void* matrix_glfw_raw_get(Matrix_Window* const window)
+{
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return ((Matrix_Glfw_Data*)window->api_data)->glfw_window;
 	}
 }

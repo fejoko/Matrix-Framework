@@ -85,7 +85,7 @@ void matrix_engine_init(Matrix_Engine* const engine)
 			engine->application.application_core.window_setup(&engine->window);
 		}
 
-		matrix_renderer_init(engine, &engine->application, &engine->logger, &engine->renderer);
+		matrix_renderer_init(engine, &engine->application, &engine->logger, &engine->window, &engine->renderer);
 
 		if (NULL != engine->application.application_core.renderer_setup)
 		{

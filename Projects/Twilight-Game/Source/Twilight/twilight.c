@@ -125,6 +125,7 @@ void twilight_state_default_on_enter(void** state_data, Matrix_Data* data)
 void twilight_state_default_on_leave(void** state_data, Matrix_Data* data)
 {
 	matrix_renderer_stop(data->renderer);
+	matrix_window_close(data->window);
 }
 
 void twilight_state_default_on_update(double delta, void** state_data, Matrix_Data* data)

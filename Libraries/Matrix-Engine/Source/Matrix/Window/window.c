@@ -96,10 +96,10 @@ void matrix_window_close(Matrix_Window* const window)
 	}
 	else
 	{
-		window->is_opened = false;
-
 		if (window->is_opened)
 		{
+			window->is_opened = false;
+
 			switch (window->window_settings.window_api)
 			{
 			case MATRIX_WINDOW_API_NONE:
@@ -121,6 +121,11 @@ void matrix_window_close(Matrix_Window* const window)
 	}
 }
 
+bool matrix_window_opened_is(Matrix_Window* const window)
+{
+	return window->is_opened;
+}
+
 bool matrix_window_should_close(Matrix_Window* const window)
 {
 	if (window->is_opened)
@@ -131,7 +136,6 @@ bool matrix_window_should_close(Matrix_Window* const window)
 			break;
 		case MATRIX_WINDOW_API_GLFW:
 			return MTRX_WINDOW_GLFW_SHOULD_CLOSE(window);
-			break;
 		case MATRIX_WINDOW_API_WINDOWS:
 			break;
 		default:
@@ -141,6 +145,6 @@ bool matrix_window_should_close(Matrix_Window* const window)
 	}
 	else
 	{
-		MTRX_CORE_LOG("window: window should not close -> is closed", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
+		MTRX_CORE_LOG("window: matrix_window_should_close failed -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
 	}
 }

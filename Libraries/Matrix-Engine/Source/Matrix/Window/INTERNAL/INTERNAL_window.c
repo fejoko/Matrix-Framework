@@ -21,12 +21,14 @@
 #define MTRX_WINDOW_GLFW_UPDATE(window) matrix_glfw_update(window)
 #define MTRX_WINDOW_GLFW_SHUTDOWN(window) matrix_glfw_shutdown(window)
 #define MTRX_WINDOW_GLFW_DESTRUCT(window) matrix_glfw_destruct(window)
+#define MTRX_WINDOW_GLFW_RAW_GET(window) matrix_glfw_raw_get(window)
 #else
 #define MTRX_WINDOW_GLFW_CONSTRUCT(window)
 #define MTRX_WINDOW_GLFW_INIT(window)
 #define MTRX_WINDOW_GLFW_UPDATE(window)
 #define MTRX_WINDOW_GLFW_SHUTDOWN(window)
 #define MTRX_WINDOW_GLFW_DESTRUCT(window)
+#define MTRX_WINDOW_GLFW_RAW_GET(window)
 #endif // ___MTRX_GLFW
 
 Matrix_Window matrix_window_construct()
@@ -107,5 +109,40 @@ void matrix_window_shutdown(Matrix_Window* const window)
 		MTRX_WINDOW_GLFW_SHUTDOWN(window);
 
 		MTRX_CORE_LOG("window: shutdown", MATRIX_LOGGER_LEVEL_INFO, window->logger);
+	}
+}
+
+Matrix_Window_Api matrix_window_api_get(Matrix_Window* const window)
+{
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		return window->window_settings.window_api;
+	}
+}
+
+void* matrix_window_raw_get(Matrix_Window* const window)
+{
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		switch (window->window_settings.window_api)
+		{
+		case MATRIX_WINDOW_API_NONE:
+			break;
+		case MATRIX_WINDOW_API_GLFW:
+			return MTRX_WINDOW_GLFW_RAW_GET(window);
+		case MATRIX_WINDOW_API_WINDOWS:
+			break;
+		default:
+			MTRX_ERROR_WINDOW_API_OUTOFBOUND;
+			break;
+		}
 	}
 }

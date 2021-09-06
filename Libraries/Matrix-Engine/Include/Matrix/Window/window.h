@@ -14,6 +14,7 @@ void matrix_window_settings_set(const Matrix_Window_Settings window_settings, Ma
 void matrix_window_open(int width, int height, const char* title, Matrix_Window* const window);
 void matrix_window_close(Matrix_Window* const window);
 
+bool matrix_window_opened_is(Matrix_Window* const window);
 bool matrix_window_should_close(Matrix_Window* const window);
 
 #endif // !___MTRX___WINDOW_H

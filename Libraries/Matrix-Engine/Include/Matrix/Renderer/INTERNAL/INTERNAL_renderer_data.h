@@ -7,6 +7,7 @@
 typedef struct Matrix_Engine Matrix_Engine;
 typedef struct Matrix_Application Matrix_Application;
 typedef struct Matrix_Logger Matrix_Logger;
+typedef struct Matrix_Window Matrix_Window;
 
 typedef struct Matrix_Renderer
 {
@@ -15,6 +16,7 @@ typedef struct Matrix_Renderer
 	Matrix_Engine* engine;
 	Matrix_Application* application;
 	Matrix_Logger* logger;
+	Matrix_Window* window;
 	void* api_data;
 } Matrix_Renderer;
 

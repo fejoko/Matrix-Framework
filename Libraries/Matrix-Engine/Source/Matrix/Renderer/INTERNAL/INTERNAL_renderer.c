@@ -41,6 +41,7 @@ Matrix_Renderer matrix_renderer_construct()
 	renderer.renderer_settings = matrix_renderer_settings_construct();
 	renderer.engine = NULL;
 	renderer.logger = NULL;
+	renderer.window = NULL;
 	renderer.api_data = NULL;
 
 	MTRX_RENDERER_VULKAN_CONSTRUCT(&renderer);
@@ -64,7 +65,7 @@ void matrix_renderer_destruct(Matrix_Renderer* const renderer)
 	}
 }
 
-void matrix_renderer_init(Matrix_Engine* const engine, Matrix_Application* const application, Matrix_Logger* const logger, Matrix_Renderer* const renderer)
+void matrix_renderer_init(Matrix_Engine* const engine, Matrix_Application* const application, Matrix_Logger* const logger, Matrix_Window* const window, Matrix_Renderer* const renderer)
 {
 	if (NULL == renderer)
 	{
@@ -75,6 +76,7 @@ void matrix_renderer_init(Matrix_Engine* const engine, Matrix_Application* const
 		renderer->engine = engine;
 		renderer->application = application;
 		renderer->logger = logger;
+		renderer->window = window;
 
 		MTRX_CORE_LOG("renderer: initialisation", MATRIX_LOGGER_LEVEL_INFO, logger);
 
