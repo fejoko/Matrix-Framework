@@ -5,4 +5,6 @@
 
 #include <time.h>
 
+#include<stdio.h>
+
 #endif // !___MTRX___INTERNAL_MTRXSTDAFX_H

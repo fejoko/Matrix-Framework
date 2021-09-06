@@ -3,9 +3,7 @@
 #include "Matrix/Engine/INTERNAL/INTERNAL_engine.h"
 #include "Matrix/Engine/INTERNAL/INTERNAL_engine_data.h"
 
-#include "Matrix/Logger/logger.h"
-#include "Matrix/Logger/INTERNAL/INTERNAL_logger_data.h"
-#include "Matrix/Logger/logger_data.h"
+#include "Matrix/Memory/memory.h"
 
 int main(const int argc, const char** const argv)
 {
