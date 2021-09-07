@@ -19,10 +19,20 @@
 #define MTRX_WINDOW_GLFW_CLOSE(window) matrix_glfw_close(window)
 #define MTRX_WINDOW_GLFW_SHOULD_CLOSE(window) matrix_glfw_should_close(window)
 #else
-#define MTRX_WINDOW_GLFW_OPEN(width, height, title, window) MTRX_CORE_LOG("renderer: could not open window -> glfw not available", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger)
+#define MTRX_WINDOW_GLFW_OPEN(width, height, title, window) MTRX_CORE_LOG("window: could not open window -> glfw not available", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger)
 #define MTRX_WINDOW_GLFW_CLOSE(window)
-#define MTRX_WINDOW_GLFW_SHOULD_CLOSE(window
+#define MTRX_WINDOW_GLFW_SHOULD_CLOSE(window) false
 #endif // ___MTRX_GLFW
+
+#ifdef ___MTRX_WINDOWS
+#define MTRX_WINDOW_WINDOWS_OPEN(width, height, title, window) MTRX_CORE_LOG("window: could not open window -> windows_api not yet supported", MATRIX_LOGGER_LEVEL_ERROR, window->logger)
+#define MTRX_WINDOW_WINDOWS_CLOSE(window)
+#define MTRX_WINDOW_WINDOWS_SHOULD_CLOSE(window) false
+#else
+#define MTRX_WINDOW_WINDOWS_OPEN(width, height, title, window) MTRX_CORE_LOG("window: could not open window -> windows_api not available", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger)
+#define MTRX_WINDOW_WINDOWS_CLOSE(window)
+#define MTRX_WINDOW_WINDOWS_SHOULD_CLOSE(window) false
+#endif // ___MTRX_WINDOWS
 
 Matrix_Window_Settings matrix_window_settings_construct()
 {
@@ -80,11 +90,13 @@ void matrix_window_open(int width, int height, const char* title, Matrix_Window*
 				switch (window->window_settings.window_api)
 				{
 				case MATRIX_WINDOW_API_NONE:
+					MTRX_CORE_LOG("window: could not open window -> no api selected", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
 					break;
 				case MATRIX_WINDOW_API_GLFW:
 					MTRX_WINDOW_GLFW_OPEN(width, height, title, window);
 					break;
 				case MATRIX_WINDOW_API_WINDOWS:
+					MTRX_WINDOW_WINDOWS_OPEN(width, height, title, window);
 					break;
 				default:
 					MTRX_ERROR_WINDOW_API_OUTOFBOUND;
@@ -114,11 +126,13 @@ void matrix_window_close(Matrix_Window* const window)
 			switch (window->window_settings.window_api)
 			{
 			case MATRIX_WINDOW_API_NONE:
+				MTRX_CORE_LOG("window: could not close window -> no api selected", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
 				break;
 			case MATRIX_WINDOW_API_GLFW:
 				MTRX_WINDOW_GLFW_CLOSE(window);
 				break;
 			case MATRIX_WINDOW_API_WINDOWS:
+				MTRX_WINDOW_WINDOWS_CLOSE(window);
 				break;
 			default:
 				MTRX_ERROR_WINDOW_API_OUTOFBOUND;
@@ -151,15 +165,18 @@ bool matrix_window_should_close(Matrix_Window* const window)
 		switch (window->window_settings.window_api)
 		{
 		case MATRIX_WINDOW_API_NONE:
+			MTRX_CORE_LOG("window: matrix_window_should_close failed -> no api selected", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
 			break;
 		case MATRIX_WINDOW_API_GLFW:
 			return MTRX_WINDOW_GLFW_SHOULD_CLOSE(window);
 		case MATRIX_WINDOW_API_WINDOWS:
-			break;
+			return MTRX_WINDOW_WINDOWS_SHOULD_CLOSE(window);
 		default:
 			MTRX_ERROR_WINDOW_API_OUTOFBOUND;
 			break;
 		}
+
+		return false;
 	}
 	else
 	{

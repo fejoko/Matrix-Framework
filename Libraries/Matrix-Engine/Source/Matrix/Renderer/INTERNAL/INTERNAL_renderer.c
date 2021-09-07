@@ -97,6 +97,8 @@ void matrix_renderer_update(Matrix_Renderer* const renderer)
 	}
 	else
 	{
+		MTRX_RENDERER_VULKAN_UPDATE(renderer);
+		MTRX_RENDERER_OPENGL_UPDATE(renderer);
 	}
 }
 

@@ -77,6 +77,7 @@ void matrix_renderer_start(Matrix_Renderer* const renderer)
 			switch (renderer->renderer_settings.renderer_api)
 			{
 			case MATRIX_RENDERER_API_NONE:
+				MTRX_CORE_LOG("renderer: could not start renderer -> no api selected", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
 				break;
 			case MATRIX_RENDERER_API_VULKAN:
 				MTRX_RENDERER_VULKAN_START(renderer);
@@ -107,6 +108,7 @@ void matrix_renderer_stop(Matrix_Renderer* const renderer)
 			switch (renderer->renderer_settings.renderer_api)
 			{
 			case MATRIX_RENDERER_API_NONE:
+				MTRX_CORE_LOG("renderer: could not stop renderer -> no api selected", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
 				break;
 			case MATRIX_RENDERER_API_VULKAN:
 				MTRX_RENDERER_VULKAN_STOP(renderer);
@@ -144,7 +146,7 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 			{
 				if (strcmp("", matrix_application_path_abs_get(renderer->application)))
 				{
-					char* rel = "";
+					const char* rel;
 
 					if (strcmp(".", &shader_path_rel[0]))
 					{

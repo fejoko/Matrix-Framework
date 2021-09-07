@@ -5,6 +5,7 @@
 #include "Matrix/Logger/logger.h"
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger_data.h"
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger_errors.h"
+#include "Matrix/Time/time.h"
 
 #define STB_SPRINTF_IMPLEMENTATION
 #include "Stb/stb_sprintf.h"

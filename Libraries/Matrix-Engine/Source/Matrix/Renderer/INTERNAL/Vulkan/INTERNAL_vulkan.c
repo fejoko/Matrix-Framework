@@ -173,7 +173,7 @@ void matrix_vulkan_create_instance(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 			const char* enabled_layers[] = { MTRX_VULKAN_ENABLED_INSTANCE_LAYERS };
 
 			uint32_t enabled_extentions_count = 0;
-			const char** enabled_extentions = "";
+			const char** enabled_extentions = NULL;
 
 			if (NULL == renderer->window)
 			{
@@ -505,7 +505,7 @@ void matrix_vulkan_create_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 					}
 					else
 					{
-						result = vkGetSwapchainImagesKHR(api_data->device, api_data->swapchain, &api_data->swapchain_image_count, &api_data->swapchain_image_all);
+						result = vkGetSwapchainImagesKHR(api_data->device, api_data->swapchain, &api_data->swapchain_image_count, api_data->swapchain_image_all);
 						matrix_vulkan_assert_result("vkGetSwapchainImagesKHR (2/2)", result, renderer);
 					}
 				}
@@ -560,8 +560,8 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 			{
 				for (uint32_t i = 0; i < api_data->swapchain_image_count; i++)
 				{
-					image_view_create_info.image = &api_data->swapchain_image_all[i];
-
+					image_view_create_info.image = api_data->swapchain_image_all[i];
+					
 					VkResult result = vkCreateImageView(api_data->device, &image_view_create_info, NULL, &api_data->image_view_all[i]);
 					int decimals = 1;
 					for (int w = i + 1; w >= 10; w /= 10)
@@ -609,7 +609,7 @@ void matrix_vulkan_create_shaders(Matrix_Vulkan_Data* api_data, Matrix_Renderer*
 					shader_module_create_info.pNext = NULL;
 					shader_module_create_info.flags = 0;
 					shader_module_create_info.codeSize = MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_size;
-					shader_module_create_info.pCode = MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_data;
+					shader_module_create_info.pCode = (const uint32_t*)MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_data;
 
 					VkResult result = vkCreateShaderModule(api_data->device, &shader_module_create_info, NULL, &api_data->shader_module_all[i]);
 					int decimals = 1;

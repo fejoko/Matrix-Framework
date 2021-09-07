@@ -81,7 +81,7 @@ void matrix_time_recent_make(Matrix_Time* const time_)
 		else
 		{
 			time_->time_raw = time(NULL);
-			localtime_s(&time_->time_info, &time_->time_raw);
+			_localtime32_s(&time_->time_info, &time_->time_raw);
 		}
 	}
 }

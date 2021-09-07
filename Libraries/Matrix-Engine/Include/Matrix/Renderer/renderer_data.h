@@ -14,7 +14,7 @@ typedef enum Matrix_Renderer_Shader_Type
 {
 	MATRIX_RENDERER_SHADER_TYPE_VERTEX,
 	MATRIX_RENDERER_SHADER_TYPE_FRAGMENT,
-} Matrix_Renderer_Api;
+} Matrix_Renderer_Shader_Type;
 
 typedef struct Matrix_Renderer_Settings
 {
