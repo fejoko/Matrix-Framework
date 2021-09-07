@@ -11,7 +11,7 @@ Matrix_Time matrix_time_construct()
 	Matrix_Time time_;
 	time_.is_recent = false;
 	time_.time_raw = 0;
-	time_.time_info;
+	time_.time_info = NULL;
 	time_.application = NULL;
 
 	return time_;
@@ -81,7 +81,15 @@ void matrix_time_recent_make(Matrix_Time* const time_)
 		else
 		{
 			time_->time_raw = time(NULL);
-			_localtime32_s(&time_->time_info, &time_->time_raw);
+			time_->time_info = localtime(&time_->time_raw);
+			if(NULL == time_->time_info)
+			{
+				MTRX_ERROR_UNEXPECTED_NULL;
+			}
+			else
+			{
+				//nothing
+			}
 		}
 	}
 }

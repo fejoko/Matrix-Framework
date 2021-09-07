@@ -7,7 +7,7 @@ typedef struct Matrix_Time
 {
 	bool is_recent;
 	time_t time_raw;
-	struct tm time_info;
+	struct tm* time_info;
 	Matrix_Application* application;
 } Matrix_Time;
 

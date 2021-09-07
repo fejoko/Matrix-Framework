@@ -6,7 +6,7 @@
 #include "Matrix/Memory/memory.h"
 #include "Matrix/Renderer/INTERNAL/INTERNAL_renderer_data.h"
 #include "Matrix/Renderer/INTERNAL/INTERNAL_renderer_errors.h"
-#include "Matrix/Vector/vector.h"	
+ #include "Matrix/Vector/vector.h"	
 
 #include "Stb/stb_sprintf.h"
 
@@ -128,7 +128,7 @@ void matrix_renderer_stop(Matrix_Renderer* const renderer)
 	}
 }
 
-void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Shader_Type _shader_type, Matrix_Renderer* const renderer)
+void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Shader_Type shader_type, Matrix_Renderer* const renderer)
 {
 	if (NULL == shader_path_rel)
 	{
@@ -203,11 +203,11 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 							}
 
 							Matrix_Renderer_Shader new_shader;
-							new_shader.shader_type = _shader_type;
+							new_shader.shader_type = shader_type;
 							new_shader.shader_size = file_size;
 							new_shader.shader_data = file_data;
 
-							matrix_vector_push_back(&new_shader, renderer->shader_vec);
+							matrix_vector_push_back((char* const)&new_shader, renderer->shader_vec);
 						}
 
 						free(path);

@@ -311,7 +311,7 @@ void matrix_vulkan_create_device(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 			{
 				vkGetPhysicalDeviceQueueFamilyProperties(api_data->physical_device_all[api_data->physical_device_used_index], &api_data->queue_family_count, api_data->queue_family_properties);
 
-				const float queue_priorities[] = { 1.0f };
+				const float queue_priorities = 1.0f;
 				
 				VkDeviceQueueCreateInfo device_queue_create_info;
 				device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
