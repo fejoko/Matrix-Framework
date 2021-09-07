@@ -12,8 +12,32 @@ target_link_libraries(Twilight
 )
 
 target_compile_definitions(Twilight
-    PUBLIC
-    "___TWLT_DIR=\"${CMAKE_CURRENT_LIST_DIR}\""
+       PUBLIC
+       "___TWLT_DIR=\"${CMAKE_CURRENT_LIST_DIR}\""
+)
+target_compile_definitions(Twilight
+       PUBLIC
+       $<$<CONFIG:Debug>:
+       
+    >
+)
+target_compile_definitions(Twilight
+       PUBLIC
+       $<$<CONFIG:RelWithDebInfo>:
+       
+    >
+)
+target_compile_definitions(Twilight
+       PUBLIC
+       $<$<CONFIG:Release>:
+       
+    >
+)
+target_compile_definitions(Twilight
+       PUBLIC
+       $<$<CONFIG:MinSizeRel>:
+       
+    >
 )
 
 add_subdirectory(Include)

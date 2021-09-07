@@ -165,7 +165,7 @@ char* matrix_vector_back(Matrix_Vector* const vector)
 	}
 }
 
-char* matrix_vector_data(const size_t index, Matrix_Vector* const vector)
+char* matrix_vector_data(Matrix_Vector* const vector)
 {
 	if (NULL == vector)
 	{

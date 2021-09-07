@@ -29,6 +29,7 @@ typedef struct Matrix_Vulkan_Data
 	uint32_t present_mode_count;
 	VkPresentModeKHR* present_mode_all;
 
+	VkFormat format_used;
 	VkSwapchainKHR swapchain;
 	uint32_t swapchain_image_count;
 	VkImage* swapchain_image_all;
@@ -37,7 +38,17 @@ typedef struct Matrix_Vulkan_Data
 
 	VkShaderModule* shader_module_all;
 
-	Matrix_Vector* pipeline_shader_stage_create_info_vec;
+	VkPipelineLayout pipeline_layout;
+	VkRenderPass renderer_pass;
+	VkPipeline pipeline;
+
+	VkFramebuffer* frame_buffer_all;
+
+	VkCommandPool command_pool;
+	VkCommandBuffer* command_buffer_all;
+
+	VkSemaphore semaphore_image_available;
+	VkSemaphore semaphore_rendering_done;
 
 } Matrix_Vulkan_Data;
 
