@@ -214,7 +214,7 @@ void matrix_vulkan_create_instance(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 				instance_create_info.ppEnabledExtensionNames = enabled_extentions;
 
 				VkResult result = vkCreateInstance(&instance_create_info, NULL, &api_data->instance);
-				matrix_vulkan_assert_result("vkCreateInstance", result, renderer);
+				MTRX_VULKAN_ASSERT("vkCreateInstance", result, renderer);
 			}
 		}
 	}
@@ -238,7 +238,7 @@ void matrix_vulkan_enumerate_physical_devices(Matrix_Vulkan_Data* api_data, Matr
 
 			api_data->physical_device_count = 0;
 			VkResult result = vkEnumeratePhysicalDevices(api_data->instance, &api_data->physical_device_count, NULL);
-			matrix_vulkan_assert_result("vkEnumeratePhysicalDevices (1/2)", result, renderer);
+			MTRX_VULKAN_ASSERT("vkEnumeratePhysicalDevices (1/2)", result, renderer);
 			api_data->physical_device_all = NULL;
 			api_data->physical_device_all = malloc(sizeof(*api_data->physical_device_all) * api_data->physical_device_count);
 			if (NULL == api_data->physical_device_all)
@@ -248,7 +248,7 @@ void matrix_vulkan_enumerate_physical_devices(Matrix_Vulkan_Data* api_data, Matr
 			else
 			{
 				result = vkEnumeratePhysicalDevices(api_data->instance, &api_data->physical_device_count, api_data->physical_device_all);
-				matrix_vulkan_assert_result("vkEnumeratePhysicalDevices (2/2)", result, renderer);
+				MTRX_VULKAN_ASSERT("vkEnumeratePhysicalDevices (2/2)", result, renderer);
 
 				api_data->physical_device_all_properties = NULL;
 				api_data->physical_device_all_properties = malloc(sizeof(*api_data->physical_device_all_properties) * api_data->physical_device_count);
@@ -318,7 +318,7 @@ void matrix_vulkan_create_device(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 			{
 				vkGetPhysicalDeviceQueueFamilyProperties(api_data->physical_device_all[api_data->physical_device_used_index], &api_data->queue_family_count, api_data->queue_family_properties);
 
-				const float queue_priorities = 1.0f;
+				const float queue_priorities[] = { 1.0f };
 				
 				VkDeviceQueueCreateInfo device_queue_create_info;
 				device_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -326,7 +326,7 @@ void matrix_vulkan_create_device(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 				device_queue_create_info.flags = 0;
 				device_queue_create_info.queueFamilyIndex = 0;//@TODO
 				device_queue_create_info.queueCount = 1;//@TODO
-				device_queue_create_info.pQueuePriorities = &queue_priorities;
+				device_queue_create_info.pQueuePriorities = queue_priorities;
 				
 				uint32_t enabled_layers_count = MTRX_VULKAN_ENABLED_DEVICE_LAYERS_COUNT;
 				const char* enabled_layers[] = { MTRX_VULKAN_ENABLED_DEVICE_LAYERS };
@@ -349,7 +349,7 @@ void matrix_vulkan_create_device(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 				device_create_info.pEnabledFeatures = &enabled_physical_device_features;
 				
 				VkResult result = vkCreateDevice(api_data->physical_device_all[api_data->physical_device_used_index], &device_create_info, NULL, &api_data->device);
-				matrix_vulkan_assert_result("vkCreateDevice", result, renderer);
+				MTRX_VULKAN_ASSERT("vkCreateDevice", result, renderer);
 				
 				vkGetDeviceQueue(api_data->device, 0, 0, &api_data->queue); //@TODO
 			}
@@ -390,19 +390,19 @@ void matrix_vulkan_create_surface(Matrix_Vulkan_Data* api_data, Matrix_Renderer*
 						break;
 					case MATRIX_WINDOW_API_GLFW:
 						result = glfwCreateWindowSurface(api_data->instance, matrix_window_raw_get(renderer->window), NULL, &api_data->surface);
-						matrix_vulkan_assert_result("glfwCreateWindowSurface", result, renderer);
+						MTRX_VULKAN_ASSERT("glfwCreateWindowSurface", result, renderer);
 
 						api_data->surface_support_is = VK_FALSE;
 						VkResult result = vkGetPhysicalDeviceSurfaceSupportKHR(api_data->physical_device_all[api_data->physical_device_used_index], 0, api_data->surface, &api_data->surface_support_is);
-						matrix_vulkan_assert_result("vkGetPhysicalDeviceSurfaceSupportKHR", result, renderer);
+						MTRX_VULKAN_ASSERT("vkGetPhysicalDeviceSurfaceSupportKHR", result, renderer);
 						if (VK_TRUE == api_data->surface_support_is)
 						{
 							result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(api_data->physical_device_all[api_data->physical_device_used_index], api_data->surface, &api_data->surface_capabilities);
-							matrix_vulkan_assert_result("vkGetPhysicalDeviceSurfaceCapabilitiesKHR", result, renderer);
+							MTRX_VULKAN_ASSERT("vkGetPhysicalDeviceSurfaceCapabilitiesKHR", result, renderer);
 
 							api_data->surface_format_count = 0;
 							result = vkGetPhysicalDeviceSurfaceFormatsKHR(api_data->physical_device_all[api_data->physical_device_used_index], api_data->surface, &api_data->surface_format_count, NULL);
-							matrix_vulkan_assert_result("vkGetPhysicalDeviceSurfaceFormatsKHR (1/2)", result, renderer);
+							MTRX_VULKAN_ASSERT("vkGetPhysicalDeviceSurfaceFormatsKHR (1/2)", result, renderer);
 							api_data->surface_format_all = NULL;
 							api_data->surface_format_all = malloc(sizeof(*api_data->surface_format_all) * api_data->surface_format_count);
 							if (NULL == api_data->surface_format_all)
@@ -412,11 +412,11 @@ void matrix_vulkan_create_surface(Matrix_Vulkan_Data* api_data, Matrix_Renderer*
 							else
 							{
 								result = vkGetPhysicalDeviceSurfaceFormatsKHR(api_data->physical_device_all[api_data->physical_device_used_index], api_data->surface, &api_data->surface_format_count, api_data->surface_format_all);
-								matrix_vulkan_assert_result("vkGetPhysicalDeviceSurfaceFormatsKHR (2/2)", result, renderer);
+								MTRX_VULKAN_ASSERT("vkGetPhysicalDeviceSurfaceFormatsKHR (2/2)", result, renderer);
 
 								api_data->present_mode_count = 0;
 								result = vkGetPhysicalDeviceSurfacePresentModesKHR(api_data->physical_device_all[api_data->physical_device_used_index], api_data->surface, &api_data->present_mode_count, NULL);
-								matrix_vulkan_assert_result("vkGetPhysicalDeviceSurfacePresentModesKHR (1/2)", result, renderer);
+								MTRX_VULKAN_ASSERT("vkGetPhysicalDeviceSurfacePresentModesKHR (1/2)", result, renderer);
 								api_data->present_mode_all = NULL;
 								api_data->present_mode_all = malloc(sizeof(*api_data->present_mode_all) * api_data->present_mode_count);
 								if (NULL == api_data->present_mode_all)
@@ -426,7 +426,7 @@ void matrix_vulkan_create_surface(Matrix_Vulkan_Data* api_data, Matrix_Renderer*
 								else
 								{
 									result = vkGetPhysicalDeviceSurfacePresentModesKHR(api_data->physical_device_all[api_data->physical_device_used_index], api_data->surface, &api_data->present_mode_count, api_data->present_mode_all);
-									matrix_vulkan_assert_result("vkGetPhysicalDeviceSurfacePresentModesKHR (2/2)", result, renderer);
+									MTRX_VULKAN_ASSERT("vkGetPhysicalDeviceSurfacePresentModesKHR (2/2)", result, renderer);
 								}
 							}
 						}
@@ -474,7 +474,7 @@ void matrix_vulkan_create_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 			swapchain_create_info.pNext = NULL;
 			swapchain_create_info.flags = 0;
 			swapchain_create_info.surface = api_data->surface;
-			swapchain_create_info.minImageCount = 1; //@TODO
+			swapchain_create_info.minImageCount = 1; //@TODO //@CHANGE
 			swapchain_create_info.imageFormat = api_data->format_used;
 			swapchain_create_info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; //@TODO
 
@@ -501,11 +501,11 @@ void matrix_vulkan_create_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 					swapchain_create_info.oldSwapchain = VK_NULL_HANDLE;
 
 					VkResult result = vkCreateSwapchainKHR(api_data->device, &swapchain_create_info, NULL, &api_data->swapchain);
-					matrix_vulkan_assert_result("vkCreateSwapchainKHR", result, renderer);
+					MTRX_VULKAN_ASSERT("vkCreateSwapchainKHR", result, renderer);
 
 					api_data->swapchain_image_count = 0;
 					result = vkGetSwapchainImagesKHR(api_data->device, api_data->swapchain, &api_data->swapchain_image_count, NULL);
-					matrix_vulkan_assert_result("vkGetSwapchainImagesKHR (1/2)", result, renderer);
+					MTRX_VULKAN_ASSERT("vkGetSwapchainImagesKHR (1/2)", result, renderer);
 					api_data->swapchain_image_all = NULL;
 					api_data->swapchain_image_all = malloc(sizeof(*api_data->swapchain_image_all) * api_data->swapchain_image_count);
 					if (NULL == api_data->swapchain_image_all)
@@ -515,7 +515,7 @@ void matrix_vulkan_create_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 					else
 					{
 						result = vkGetSwapchainImagesKHR(api_data->device, api_data->swapchain, &api_data->swapchain_image_count, api_data->swapchain_image_all);
-						matrix_vulkan_assert_result("vkGetSwapchainImagesKHR (2/2)", result, renderer);
+						MTRX_VULKAN_ASSERT("vkGetSwapchainImagesKHR (2/2)", result, renderer);
 					}
 				}
 				else
@@ -549,10 +549,10 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 			image_view_create_info.flags = 0;
 			image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			image_view_create_info.format = api_data->format_used;
-			image_view_create_info.components.r = VK_COMPONENT_SWIZZLE_R;
-			image_view_create_info.components.g = VK_COMPONENT_SWIZZLE_G;
-			image_view_create_info.components.b = VK_COMPONENT_SWIZZLE_B;
-			image_view_create_info.components.a = VK_COMPONENT_SWIZZLE_A;
+			image_view_create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			image_view_create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			image_view_create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			image_view_create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 			image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			image_view_create_info.subresourceRange.baseMipLevel = 0;
 			image_view_create_info.subresourceRange.levelCount = 1;
@@ -580,7 +580,7 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 					char* message = NULL;
 					message = malloc(sizeof(*message) * (21 + decimals));
 					stbsp_sprintf(message, "vkCreateImageView (%u)", i + 1);
-					matrix_vulkan_assert_result(message, result, renderer);
+					MTRX_VULKAN_ASSERT(message, result, renderer);
 					free(message);
 				}
 			}
@@ -631,7 +631,7 @@ void matrix_vulkan_create_shader(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 					char* message = NULL;
 					message = malloc(sizeof(*message) * (25 + decimals));
 					stbsp_sprintf(message, "vkCreateShaderModule (%lu)", i + 1);
-					matrix_vulkan_assert_result(message, result, renderer);
+					MTRX_VULKAN_ASSERT(message, result, renderer);
 					free(message);
 				}
 			}
@@ -737,7 +737,7 @@ void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 					pipeline_rasterisation_state_create_info.rasterizerDiscardEnable = VK_FALSE;
 					pipeline_rasterisation_state_create_info.polygonMode = VK_POLYGON_MODE_FILL;
 					pipeline_rasterisation_state_create_info.cullMode = VK_CULL_MODE_BACK_BIT;
-					pipeline_rasterisation_state_create_info.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+					pipeline_rasterisation_state_create_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
 					pipeline_rasterisation_state_create_info.depthBiasEnable = VK_FALSE;
 					pipeline_rasterisation_state_create_info.depthBiasConstantFactor = 0.0f;
 					pipeline_rasterisation_state_create_info.depthBiasClamp = 0.0f;
@@ -788,7 +788,7 @@ void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 					pipeline_layout_create_info.pPushConstantRanges = NULL;
 
 					VkResult result = vkCreatePipelineLayout(api_data->device, &pipeline_layout_create_info, NULL, &api_data->pipeline_layout);
-					matrix_vulkan_assert_result("vkCreatePipelineLayout", result, renderer);
+					MTRX_VULKAN_ASSERT("vkCreatePipelineLayout", result, renderer);
 
 					VkAttachmentDescription attachment_description;
 					attachment_description.flags = 0;
@@ -817,6 +817,15 @@ void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 					subpass_description.preserveAttachmentCount = 0;
 					subpass_description.pPreserveAttachments = NULL;
 
+					VkSubpassDependency subpass_dependency;
+					subpass_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+					subpass_dependency.dstSubpass = 0;
+					subpass_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+					subpass_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+					subpass_dependency.srcAccessMask = 0;
+					subpass_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+					subpass_dependency.dependencyFlags = 0;
+
 					VkRenderPassCreateInfo render_pass_create_info;
 					render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 					render_pass_create_info.pNext = NULL;
@@ -825,11 +834,11 @@ void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 					render_pass_create_info.pAttachments = &attachment_description;
 					render_pass_create_info.subpassCount = 1;
 					render_pass_create_info.pSubpasses = &subpass_description;
-					render_pass_create_info.dependencyCount = 0;
-					render_pass_create_info.pDependencies = NULL;
+					render_pass_create_info.dependencyCount = 1;
+					render_pass_create_info.pDependencies = &subpass_dependency;
 
 					result = vkCreateRenderPass(api_data->device, &render_pass_create_info, NULL, &api_data->renderer_pass);
-					matrix_vulkan_assert_result("vkCreateRenderPass", result, renderer);
+					MTRX_VULKAN_ASSERT("vkCreateRenderPass", result, renderer);
 
 					VkGraphicsPipelineCreateInfo graphics_pipeline_create_info;
 					graphics_pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -850,10 +859,10 @@ void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 					graphics_pipeline_create_info.renderPass = api_data->renderer_pass;
 					graphics_pipeline_create_info.subpass = 0;
 					graphics_pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
-					graphics_pipeline_create_info.basePipelineIndex = 0;
+					graphics_pipeline_create_info.basePipelineIndex = -1;
 
 					result = vkCreateGraphicsPipelines(api_data->device, VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, NULL, &api_data->pipeline);
-					matrix_vulkan_assert_result("vkCreateGraphicsPipelines", result, renderer);
+					MTRX_VULKAN_ASSERT("vkCreateGraphicsPipelines", result, renderer);
 
 					matrix_vector_destruct(&pipeline_shader_stage_create_info_vec);
 				}
@@ -921,7 +930,7 @@ void matrix_vulkan_create_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Rend
 							char* message = NULL;
 							message = malloc(sizeof(*message) * (23 + decimals));
 							stbsp_sprintf(message, "vkCreateFramebuffer (%u)", i + 1);
-							matrix_vulkan_assert_result(message, result, renderer);
+							MTRX_VULKAN_ASSERT(message, result, renderer);
 							free(message);
 						}
 					}
@@ -958,7 +967,7 @@ void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Re
 			command_pool_create_info.queueFamilyIndex = 0; //@TODO
 
 			VkResult result = vkCreateCommandPool(api_data->device, &command_pool_create_info, NULL, &api_data->command_pool);
-			matrix_vulkan_assert_result("vkCreateCommandPool", result, renderer);
+			MTRX_VULKAN_ASSERT("vkCreateCommandPool", result, renderer);
 
 			VkCommandBufferAllocateInfo command_buffer_allocate_info;
 			command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -976,7 +985,7 @@ void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Re
 			else
 			{
 				result = vkAllocateCommandBuffers(api_data->device, &command_buffer_allocate_info, api_data->command_buffer_all);
-				matrix_vulkan_assert_result("vkAllocateCommandBuffers", result, renderer);
+				MTRX_VULKAN_ASSERT("vkAllocateCommandBuffers", result, renderer);
 
 				VkCommandBufferBeginInfo command_buffer_begin_info;
 				command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -995,7 +1004,7 @@ void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Re
 					char* message = NULL;
 					message = malloc(sizeof(*message) * (24 + decimals));
 					stbsp_sprintf(message, "vkBeginCommandBuffer (%u)", i + 1);
-					matrix_vulkan_assert_result(message, result, renderer);
+					MTRX_VULKAN_ASSERT(message, result, renderer);
 					free(message);
 
 					if (NULL == renderer->window)
@@ -1043,7 +1052,7 @@ void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Re
 					message = NULL;
 					message = malloc(sizeof(*message) * (22 + decimals));
 					stbsp_sprintf(message, "vkEndCommandBuffer (%u)", i + 1);
-					matrix_vulkan_assert_result(message, result, renderer);
+					MTRX_VULKAN_ASSERT(message, result, renderer);
 					free(message);
 				}
 			}
@@ -1073,10 +1082,10 @@ void matrix_vulkan_create_semaphore(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 			semaphore_create_info.flags = 0;
 
 			VkResult result = vkCreateSemaphore(api_data->device, &semaphore_create_info, NULL, &api_data->semaphore_image_available);
-			matrix_vulkan_assert_result("vkCreateSemaphore (1/2)", result, renderer);
+			MTRX_VULKAN_ASSERT("vkCreateSemaphore (1/2)", result, renderer);
 
 			result = vkCreateSemaphore(api_data->device, &semaphore_create_info, NULL, &api_data->semaphore_rendering_done);
-			matrix_vulkan_assert_result("vkCreateSemaphore (2/2)", result, renderer);
+			MTRX_VULKAN_ASSERT("vkCreateSemaphore (2/2)", result, renderer);
 		}
 	}
 }
@@ -1095,7 +1104,39 @@ void matrix_vulkan_frame_draw(Matrix_Vulkan_Data* api_data, Matrix_Renderer* ren
 		}
 		else
 		{
+			uint32_t image_index = 0;
 
+			VkResult result = vkAcquireNextImageKHR(api_data->device, api_data->swapchain, INT64_MAX, api_data->semaphore_image_available, VK_NULL_HANDLE, &image_index);
+			MTRX_VULKAN_QASSERT("vkAcquireNextImageKHR", result, renderer);
+
+			VkPipelineStageFlags wait_stage_mask[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+			VkSubmitInfo submit_info;
+			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submit_info.pNext = NULL;
+			submit_info.waitSemaphoreCount = 1;
+			submit_info.pWaitSemaphores = &api_data->semaphore_image_available;
+			submit_info.pWaitDstStageMask = wait_stage_mask;
+			submit_info.commandBufferCount = api_data->swapchain_image_count;
+			submit_info.pCommandBuffers = &api_data->command_buffer_all[image_index];
+			submit_info.signalSemaphoreCount = 1;
+			submit_info.pSignalSemaphores = &api_data->semaphore_rendering_done;
+
+			result = vkQueueSubmit(api_data->queue, 1, &submit_info, VK_NULL_HANDLE);
+			MTRX_VULKAN_QASSERT("vkQueueSubmit", result, renderer);
+
+			VkPresentInfoKHR present_info;
+			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+			present_info.pNext = NULL;
+			present_info.waitSemaphoreCount = 1;
+			present_info.pWaitSemaphores = &api_data->semaphore_rendering_done;
+			present_info.swapchainCount = 1;
+			present_info.pSwapchains = &api_data->swapchain;
+			present_info.pImageIndices = &image_index;
+			present_info.pResults = NULL;
+
+			result = vkQueuePresentKHR(api_data->queue, &present_info);
+			MTRX_VULKAN_QASSERT("vkQueuePresentKHR", result, renderer);
 		}
 	}
 }

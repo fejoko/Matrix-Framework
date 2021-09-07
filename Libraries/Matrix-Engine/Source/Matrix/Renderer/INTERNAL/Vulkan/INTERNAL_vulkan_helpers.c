@@ -7,21 +7,28 @@
 
 #include "Stb/stb_sprintf.h"
 
-void matrix_vulkan_assert_result(const char* what, VkResult result, Matrix_Renderer* const renderer)
+void matrix_renderer_vulkan_assert(const char* what, VkResult result, bool no_success_info, Matrix_Renderer* const renderer)
 {
 	if (VK_SUCCESS == result)
 	{
-		char* message = NULL;
-		message = malloc(sizeof(*message) * (37 + strlen(what)));
-		if (NULL == message)
+		if (no_success_info)
 		{
-			MTRX_ERROR_UNEXPECTED_NULL;
+			return;
 		}
 		else
 		{
-			stbsp_sprintf(message, "renderer: %s succeeded with VK_SUCCESS", what);
-			MTRX_CORE_LOG(message, MATRIX_LOGGER_LEVEL_DEBUG, renderer->logger);
-			free(message);
+			char* message = NULL;
+			message = malloc(sizeof(*message) * (37 + strlen(what)));
+			if (NULL == message)
+			{
+				MTRX_ERROR_UNEXPECTED_NULL;
+			}
+			else
+			{
+				stbsp_sprintf(message, "renderer: %s succeeded with VK_SUCCESS", what);
+				MTRX_CORE_LOG(message, MATRIX_LOGGER_LEVEL_DEBUG, renderer->logger);
+				free(message);
+			}
 		}
 	}
 	else

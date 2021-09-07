@@ -7,6 +7,9 @@
 
 typedef struct Matrix_Vulkan_Data
 {
+	uint32_t physical_device_used_index;
+	VkFormat format_used;
+
 	VkInstance instance;
 
 	uint32_t physical_device_count;
@@ -14,7 +17,6 @@ typedef struct Matrix_Vulkan_Data
 	VkPhysicalDeviceProperties* physical_device_all_properties;
 	VkPhysicalDeviceFeatures* physical_device_all_features;
 	VkPhysicalDeviceMemoryProperties* physical_device_all_memory_properties;
-	uint32_t physical_device_used_index;
 
 	uint32_t queue_family_count;
 	VkQueueFamilyProperties* queue_family_properties;
@@ -29,7 +31,6 @@ typedef struct Matrix_Vulkan_Data
 	uint32_t present_mode_count;
 	VkPresentModeKHR* present_mode_all;
 
-	VkFormat format_used;
 	VkSwapchainKHR swapchain;
 	uint32_t swapchain_image_count;
 	VkImage* swapchain_image_all;
