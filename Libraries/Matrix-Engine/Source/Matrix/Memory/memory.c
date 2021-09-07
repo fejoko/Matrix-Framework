@@ -18,6 +18,7 @@
 #ifdef ___MTRX_MMAP
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 #endif // ___MTRX_MMAP
 
@@ -81,8 +82,7 @@ char* matrix_memory_file_mapp(const char* file_path, uint32_t* file_size)
     {
         *file_size = file_stats.st_size;
 
-        char* raw = mmap(NULL, file_stats.st_size, PROT_READ, MAP_PRIVATE, file, 0);
-        return raw;
+        return mmap(NULL, file_stats.st_size, PROT_READ, MAP_PRIVATE, file, 0);
     }
 #endif // ___MTRX_MMAP
 }

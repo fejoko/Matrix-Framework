@@ -111,8 +111,8 @@ void twilight_state_default_on_destruction(void** state_data, Matrix_Data* data)
 
 void twilight_state_default_on_load(void** state_data, Matrix_Data* data)
 {
-	matrix_renderer_shader_load("./Resources/vert.spv", MATRIX_RENDERER_SHADER_TYPE_VERTEX, data->renderer);
-	matrix_renderer_shader_load("./Resources/frag.spv", MATRIX_RENDERER_SHADER_TYPE_FRAGMENT, data->renderer);
+	matrix_renderer_shader_load("/Resources/vert.spv", MATRIX_RENDERER_SHADER_TYPE_VERTEX, data->renderer);
+	matrix_renderer_shader_load("/Resources/frag.spv", MATRIX_RENDERER_SHADER_TYPE_FRAGMENT, data->renderer);
 }
 
 void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)

@@ -29,7 +29,7 @@
 #define MTRX_WINDOW_WINDOWS_CLOSE(window)
 #define MTRX_WINDOW_WINDOWS_SHOULD_CLOSE(window) false
 #else
-#define MTRX_WINDOW_WINDOWS_OPEN(width, height, title, window) MTRX_CORE_LOG("window: could not open window -> windows_api not available", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger)
+#define MTRX_WINDOW_WINDOWS_OPEN(width, height, title, window) MTRX_CORE_LOG("window: could not open window -> windows_api not available", MATRIX_LOGGER_LEVEL_ERROR, window->logger)
 #define MTRX_WINDOW_WINDOWS_CLOSE(window)
 #define MTRX_WINDOW_WINDOWS_SHOULD_CLOSE(window) false
 #endif // ___MTRX_WINDOWS

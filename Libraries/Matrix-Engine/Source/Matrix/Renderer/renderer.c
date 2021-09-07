@@ -146,18 +146,7 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 			{
 				if (strcmp("", matrix_application_path_abs_get(renderer->application)))
 				{
-					const char* rel;
-
-					if (strcmp(".", &shader_path_rel[0]))
-					{
-						rel = shader_path_rel;
-					}
-					else
-					{
-						rel = strstr(shader_path_rel, "/");
-					}
-
-					size_t len = strlen(rel);
+					size_t len = strlen(shader_path_rel);
 					len += strlen(matrix_application_path_abs_get(renderer->application));
 
 					char* path = NULL;
@@ -168,7 +157,7 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 					}
 					else
 					{
-						stbsp_sprintf(path, "%s%s", matrix_application_path_abs_get(renderer->application), rel);
+						stbsp_sprintf(path, "%s%s", matrix_application_path_abs_get(renderer->application), shader_path_rel);
 
 						uint32_t file_size = 0;
 						char* file_data = matrix_memory_file_mapp(path, &file_size);
