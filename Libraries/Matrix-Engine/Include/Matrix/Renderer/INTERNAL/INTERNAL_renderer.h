@@ -16,4 +16,6 @@ void matrix_renderer_init(Matrix_Engine* const engine, Matrix_Application* const
 void matrix_renderer_update(Matrix_Renderer* const renderer);
 void matrix_renderer_shutdown(Matrix_Renderer* const renderer);
 
+void matrix_renderer_onResize(Matrix_Renderer* const renderer);
+
 #endif // !___MTRX___INTERNAL_RENDERER_H

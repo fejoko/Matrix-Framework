@@ -47,7 +47,7 @@ void matrix_vulkan_construct(Matrix_Renderer* const renderer)
 		}
 		else
 		{
-
+			((Matrix_Vulkan_Data*)renderer->api_data)->swapchain = VK_NULL_HANDLE;
 		}
 	}
 }
@@ -87,7 +87,9 @@ void matrix_vulkan_start(Matrix_Renderer* const renderer)
 		matrix_vulkan_create_shader(renderer->api_data, renderer);
 		matrix_vulkan_create_pipeline(renderer->api_data, renderer);
 		matrix_vulkan_create_frame_buffer(renderer->api_data, renderer);
+		matrix_vulkan_create_command_pool(renderer->api_data, renderer);
 		matrix_vulkan_create_command_buffer(renderer->api_data, renderer);
+		matrix_vulkan_record_command_buffer(renderer->api_data, renderer);
 		matrix_vulkan_create_semaphore(renderer->api_data, renderer);
 	}
 }
@@ -116,6 +118,7 @@ void matrix_vulkan_stop(Matrix_Renderer* const renderer)
 
 		matrix_vulkan_destroy_semaphore(renderer->api_data, renderer);
 		matrix_vulkan_destroy_command_buffer(renderer->api_data, renderer);
+		matrix_vulkan_destroy_command_pool(renderer->api_data, renderer);
 		matrix_vulkan_destroy_frame_buffer(renderer->api_data, renderer);
 		matrix_vulkan_destroy_pipeline(renderer->api_data, renderer);
 		matrix_vulkan_destroy_shaders(renderer->api_data, renderer);
@@ -148,6 +151,56 @@ void matrix_vulkan_destruct(Matrix_Renderer* const renderer)
 	else
 	{
 		free(renderer->api_data);
+	}
+}
+
+void matrix_vulkan_onResize(Matrix_Renderer* const renderer)
+{
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		matrix_vulkan_swapchain_recreate(renderer->api_data, renderer);
+		matrix_vulkan_frame_draw(renderer->api_data, renderer);
+	}
+}
+
+void matrix_vulkan_swapchain_recreate(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
+{
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == (renderer->api_data))
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			vkDeviceWaitIdle(api_data->device);
+
+			matrix_vulkan_destroy_command_buffer(api_data, renderer);
+			matrix_vulkan_destroy_command_pool(api_data, renderer);
+			matrix_vulkan_destroy_frame_buffer(api_data, renderer);
+			matrix_vulkan_destroy_imageviews(api_data, renderer);
+			
+			VkSwapchainKHR swapchain_old = api_data->swapchain;
+			
+			matrix_vulkan_create_swapchain(api_data, renderer);
+			
+			vkDestroySwapchainKHR(api_data->device, swapchain_old, NULL);
+			MTRX_CORE_LOG("renderer: swapchain_old destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+			
+			matrix_vulkan_create_imageviews(api_data, renderer);
+			matrix_vulkan_create_frame_buffer(api_data, renderer);
+			matrix_vulkan_create_command_pool(api_data, renderer);
+			matrix_vulkan_create_command_buffer(api_data, renderer);
+			matrix_vulkan_record_command_buffer(api_data, renderer);
+		}
 	}
 }
 
@@ -243,42 +296,42 @@ void matrix_vulkan_enumerate_physical_devices(Matrix_Vulkan_Data* api_data, Matr
 			api_data->physical_device_all = malloc(sizeof(*api_data->physical_device_all) * api_data->physical_device_count);
 			if (NULL == api_data->physical_device_all)
 			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				MTRX_ERROR_MALLOC_FAILED;
 			}
 			else
 			{
 				result = vkEnumeratePhysicalDevices(api_data->instance, &api_data->physical_device_count, api_data->physical_device_all);
 				MTRX_VULKAN_ASSERT("vkEnumeratePhysicalDevices (2/2)", result, renderer);
 
-				api_data->physical_device_all_properties = NULL;
-				api_data->physical_device_all_properties = malloc(sizeof(*api_data->physical_device_all_properties) * api_data->physical_device_count);
-				if (NULL == api_data->physical_device_all_properties)
+				api_data->physical_device_all_properties_all = NULL;
+				api_data->physical_device_all_properties_all = malloc(sizeof(*api_data->physical_device_all_properties_all) * api_data->physical_device_count);
+				if (NULL == api_data->physical_device_all_properties_all)
 				{
-					MTRX_ERROR_UNEXPECTED_NULL;
+					MTRX_ERROR_MALLOC_FAILED;
 				}
 				else
 				{
-					api_data->physical_device_all_features = NULL;
-					api_data->physical_device_all_features = malloc(sizeof(*api_data->physical_device_all_features) * api_data->physical_device_count);
-					if (NULL == api_data->physical_device_all_features)
+					api_data->physical_device_all_features_all = NULL;
+					api_data->physical_device_all_features_all = malloc(sizeof(*api_data->physical_device_all_features_all) * api_data->physical_device_count);
+					if (NULL == api_data->physical_device_all_features_all)
 					{
-						MTRX_ERROR_UNEXPECTED_NULL;
+						MTRX_ERROR_MALLOC_FAILED;
 					}
 					else
 					{
-						api_data->physical_device_all_memory_properties = NULL;
-						api_data->physical_device_all_memory_properties = malloc(sizeof(*api_data->physical_device_all_memory_properties) * api_data->physical_device_count);
-						if (NULL == api_data->physical_device_all_memory_properties)
+						api_data->physical_device_all_memory_properties_all = NULL;
+						api_data->physical_device_all_memory_properties_all = malloc(sizeof(*api_data->physical_device_all_memory_properties_all) * api_data->physical_device_count);
+						if (NULL == api_data->physical_device_all_memory_properties_all)
 						{
-							MTRX_ERROR_UNEXPECTED_NULL;
+							MTRX_ERROR_MALLOC_FAILED;
 						}
 						else
 						{
 							for (uint32_t i = 0; i < api_data->physical_device_count; i++)
 							{
-								vkGetPhysicalDeviceProperties(api_data->physical_device_all[i], &api_data->physical_device_all_properties[i]);
-								vkGetPhysicalDeviceFeatures(api_data->physical_device_all[i], &api_data->physical_device_all_features[i]);
-								vkGetPhysicalDeviceMemoryProperties(api_data->physical_device_all[i], &api_data->physical_device_all_memory_properties[i]);
+								vkGetPhysicalDeviceProperties(api_data->physical_device_all[i], &api_data->physical_device_all_properties_all[i]);
+								vkGetPhysicalDeviceFeatures(api_data->physical_device_all[i], &api_data->physical_device_all_features_all[i]);
+								vkGetPhysicalDeviceMemoryProperties(api_data->physical_device_all[i], &api_data->physical_device_all_memory_properties_all[i]);
 							}
 
 							api_data->physical_device_used_index = 0; //@TODO: pick best physical_device
@@ -312,7 +365,7 @@ void matrix_vulkan_create_device(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 			api_data->queue_family_properties = malloc(sizeof(*api_data->queue_family_properties) * api_data->queue_family_count);
 			if (api_data->queue_family_properties == NULL)
 			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				MTRX_ERROR_MALLOC_FAILED;
 			}
 			else
 			{
@@ -407,7 +460,7 @@ void matrix_vulkan_create_surface(Matrix_Vulkan_Data* api_data, Matrix_Renderer*
 							api_data->surface_format_all = malloc(sizeof(*api_data->surface_format_all) * api_data->surface_format_count);
 							if (NULL == api_data->surface_format_all)
 							{
-								MTRX_ERROR_UNEXPECTED_NULL;
+								MTRX_ERROR_MALLOC_FAILED;
 							}
 							else
 							{
@@ -421,7 +474,7 @@ void matrix_vulkan_create_surface(Matrix_Vulkan_Data* api_data, Matrix_Renderer*
 								api_data->present_mode_all = malloc(sizeof(*api_data->present_mode_all) * api_data->present_mode_count);
 								if (NULL == api_data->present_mode_all)
 								{
-									MTRX_ERROR_UNEXPECTED_NULL;
+									MTRX_ERROR_MALLOC_FAILED;
 								}
 								else
 								{
@@ -498,7 +551,7 @@ void matrix_vulkan_create_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 					swapchain_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 					swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR; //@TODO -> better one available?
 					swapchain_create_info.clipped = VK_TRUE;
-					swapchain_create_info.oldSwapchain = VK_NULL_HANDLE;
+					swapchain_create_info.oldSwapchain = api_data->swapchain;
 
 					VkResult result = vkCreateSwapchainKHR(api_data->device, &swapchain_create_info, NULL, &api_data->swapchain);
 					MTRX_VULKAN_ASSERT("vkCreateSwapchainKHR", result, renderer);
@@ -510,7 +563,7 @@ void matrix_vulkan_create_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Rendere
 					api_data->swapchain_image_all = malloc(sizeof(*api_data->swapchain_image_all) * api_data->swapchain_image_count);
 					if (NULL == api_data->swapchain_image_all)
 					{
-						MTRX_ERROR_UNEXPECTED_NULL;
+						MTRX_ERROR_MALLOC_FAILED;
 					}
 					else
 					{
@@ -563,7 +616,7 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 			api_data->image_view_all = malloc(sizeof(*api_data->image_view_all) * api_data->swapchain_image_count);
 			if (NULL == api_data->image_view_all)
 			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				MTRX_ERROR_MALLOC_FAILED;
 			}
 			else
 			{
@@ -572,16 +625,7 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 					image_view_create_info.image = api_data->swapchain_image_all[i];
 					
 					VkResult result = vkCreateImageView(api_data->device, &image_view_create_info, NULL, &api_data->image_view_all[i]);
-					int decimals = 1;
-					for (int w = i + 1; w >= 10; w /= 10)
-					{
-						decimals++;
-					}
-					char* message = NULL;
-					message = malloc(sizeof(*message) * (21 + decimals));
-					stbsp_sprintf(message, "vkCreateImageView (%u)", i + 1);
-					MTRX_VULKAN_ASSERT(message, result, renderer);
-					free(message);
+					MTRX_VULKAN_ASSERT_I("vkCreateImageView", result, i, renderer);
 				}
 			}
 		}
@@ -608,7 +652,7 @@ void matrix_vulkan_create_shader(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 			api_data->shader_module_all = malloc(sizeof(*api_data->shader_module_all) * matrix_vector_capacity(renderer->shader_vec));
 			if (NULL == api_data->shader_module_all)
 			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				MTRX_ERROR_MALLOC_FAILED;
 			}
 			else
 			{
@@ -623,16 +667,7 @@ void matrix_vulkan_create_shader(Matrix_Vulkan_Data* api_data, Matrix_Renderer* 
 					shader_module_create_info.pCode = (const uint32_t*)MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_data;
 
 					VkResult result = vkCreateShaderModule(api_data->device, &shader_module_create_info, NULL, &api_data->shader_module_all[i]);
-					int decimals = 1;
-					for (int w = i + 1; w >= 10; w /= 10)
-					{
-						decimals++;
-					}
-					char* message = NULL;
-					message = malloc(sizeof(*message) * (25 + decimals));
-					stbsp_sprintf(message, "vkCreateShaderModule (%lu)", i + 1);
-					MTRX_VULKAN_ASSERT(message, result, renderer);
-					free(message);
+					MTRX_VULKAN_ASSERT_I("vkCreateShaderModule", result, i, renderer);
 				}
 			}
 		}
@@ -655,220 +690,236 @@ void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer
 		{
 			MTRX_CORE_LOG("renderer: pipeline creation", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 
-			Matrix_Vector* pipeline_shader_stage_create_info_vec = matrix_vector_construct(sizeof(VkPipelineShaderStageCreateInfo), matrix_vector_capacity(renderer->shader_vec));
-
-			for (size_t i = 0; i < matrix_vector_capacity(pipeline_shader_stage_create_info_vec); i++)
+			VkPipelineShaderStageCreateInfo* pipeline_shader_stage_create_info_all = NULL;
+			pipeline_shader_stage_create_info_all = malloc(sizeof(*pipeline_shader_stage_create_info_all) * matrix_vector_capacity(renderer->shader_vec));
+			if (NULL == pipeline_shader_stage_create_info_all)
 			{
-				VkPipelineShaderStageCreateInfo pipeline_shader_stage_create_info;
-				pipeline_shader_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-				pipeline_shader_stage_create_info.pNext = NULL;
-				pipeline_shader_stage_create_info.flags = 0;
-				switch (MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_type)
-				{
-				case MATRIX_RENDERER_SHADER_TYPE_VERTEX:
-					pipeline_shader_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-					break;
-				case MATRIX_RENDERER_SHADER_TYPE_FRAGMENT:
-					pipeline_shader_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-					break;
-				default:
-					MTRX_ERROR_RENDERER_SHADER_TYPE_OUTOFBOUND;
-					break;
-				}
-				pipeline_shader_stage_create_info.module = api_data->shader_module_all[i];
-				pipeline_shader_stage_create_info.pName = "main";
-				pipeline_shader_stage_create_info.pSpecializationInfo = NULL;
-
-				MTRX_VECTOR_AT_AS(VkPipelineShaderStageCreateInfo, i, pipeline_shader_stage_create_info_vec) = pipeline_shader_stage_create_info;
-			}
-
-			VkPipelineVertexInputStateCreateInfo pipeline_vertex_input_state_create_info;
-			pipeline_vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-			pipeline_vertex_input_state_create_info.pNext = NULL;
-			pipeline_vertex_input_state_create_info.flags = 0;
-			pipeline_vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
-			pipeline_vertex_input_state_create_info.pVertexBindingDescriptions = NULL;
-			pipeline_vertex_input_state_create_info.vertexAttributeDescriptionCount = 0;
-			pipeline_vertex_input_state_create_info.pVertexAttributeDescriptions = NULL;
-
-			VkPipelineInputAssemblyStateCreateInfo pipelien_input_assembly_state_create_info;
-			pipelien_input_assembly_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-			pipelien_input_assembly_state_create_info.pNext = NULL;
-			pipelien_input_assembly_state_create_info.flags = 0;
-			pipelien_input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-			pipelien_input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
-
-			if (NULL == renderer->window)
-			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				MTRX_ERROR_MALLOC_FAILED;
 			}
 			else
 			{
-				if (matrix_window_opened_is(renderer->window))
+				for (size_t i = 0; i < matrix_vector_capacity(renderer->shader_vec); i++)
 				{
-					VkViewport viewport;
-					viewport.x = 0.0f;
-					viewport.y = 0.0f;
-					viewport.width = matrix_window_width_get(renderer->window);
-					viewport.height = matrix_window_height_get(renderer->window);
-					viewport.minDepth = 0.0f;
-					viewport.maxDepth = 1.0f;
+					VkPipelineShaderStageCreateInfo pipeline_shader_stage_create_info;
+					pipeline_shader_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+					pipeline_shader_stage_create_info.pNext = NULL;
+					pipeline_shader_stage_create_info.flags = 0;
+					switch (MTRX_VECTOR_AT_AS(Matrix_Renderer_Shader, i, renderer->shader_vec).shader_type)
+					{
+					case MATRIX_RENDERER_SHADER_TYPE_VERTEX:
+						pipeline_shader_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+						break;
+					case MATRIX_RENDERER_SHADER_TYPE_FRAGMENT:
+						pipeline_shader_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+						break;
+					default:
+						MTRX_ERROR_RENDERER_SHADER_TYPE_OUTOFBOUND;
+						break;
+					}
+					pipeline_shader_stage_create_info.module = api_data->shader_module_all[i];
+					pipeline_shader_stage_create_info.pName = "main";
+					pipeline_shader_stage_create_info.pSpecializationInfo = NULL;
 
-					VkRect2D scissor;
-					scissor.offset.x = 0;
-					scissor.offset.y = 0;
-					scissor.extent.width = matrix_window_width_get(renderer->window);
-					scissor.extent.height = matrix_window_height_get(renderer->window);
+					pipeline_shader_stage_create_info_all[i] = pipeline_shader_stage_create_info;
+				}
 
-					VkPipelineViewportStateCreateInfo pipeline_viewport_state_create_info;
-					pipeline_viewport_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-					pipeline_viewport_state_create_info.pNext = NULL;
-					pipeline_viewport_state_create_info.flags = 0;
-					pipeline_viewport_state_create_info.viewportCount = 1;
-					pipeline_viewport_state_create_info.pViewports = &viewport;
-					pipeline_viewport_state_create_info.scissorCount = 1;
-					pipeline_viewport_state_create_info.pScissors = &scissor;
+				VkPipelineVertexInputStateCreateInfo pipeline_vertex_input_state_create_info;
+				pipeline_vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+				pipeline_vertex_input_state_create_info.pNext = NULL;
+				pipeline_vertex_input_state_create_info.flags = 0;
+				pipeline_vertex_input_state_create_info.vertexBindingDescriptionCount = 0;
+				pipeline_vertex_input_state_create_info.pVertexBindingDescriptions = NULL;
+				pipeline_vertex_input_state_create_info.vertexAttributeDescriptionCount = 0;
+				pipeline_vertex_input_state_create_info.pVertexAttributeDescriptions = NULL;
 
-					VkPipelineRasterizationStateCreateInfo pipeline_rasterisation_state_create_info;
-					pipeline_rasterisation_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-					pipeline_rasterisation_state_create_info.pNext = NULL;
-					pipeline_rasterisation_state_create_info.flags = 0;
-					pipeline_rasterisation_state_create_info.depthClampEnable = VK_FALSE;
-					pipeline_rasterisation_state_create_info.rasterizerDiscardEnable = VK_FALSE;
-					pipeline_rasterisation_state_create_info.polygonMode = VK_POLYGON_MODE_FILL;
-					pipeline_rasterisation_state_create_info.cullMode = VK_CULL_MODE_BACK_BIT;
-					pipeline_rasterisation_state_create_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
-					pipeline_rasterisation_state_create_info.depthBiasEnable = VK_FALSE;
-					pipeline_rasterisation_state_create_info.depthBiasConstantFactor = 0.0f;
-					pipeline_rasterisation_state_create_info.depthBiasClamp = 0.0f;
-					pipeline_rasterisation_state_create_info.depthBiasSlopeFactor = 0.0f;
-					pipeline_rasterisation_state_create_info.lineWidth = 1.0f;
+				VkPipelineInputAssemblyStateCreateInfo pipelien_input_assembly_state_create_info;
+				pipelien_input_assembly_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+				pipelien_input_assembly_state_create_info.pNext = NULL;
+				pipelien_input_assembly_state_create_info.flags = 0;
+				pipelien_input_assembly_state_create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+				pipelien_input_assembly_state_create_info.primitiveRestartEnable = VK_FALSE;
 
-					VkPipelineMultisampleStateCreateInfo pipeline_multisample_state_create_info;
-					pipeline_multisample_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-					pipeline_multisample_state_create_info.pNext = NULL;
-					pipeline_multisample_state_create_info.flags = 0;
-					pipeline_multisample_state_create_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-					pipeline_multisample_state_create_info.sampleShadingEnable = VK_FALSE;
-					pipeline_multisample_state_create_info.minSampleShading = 1.0f;
-					pipeline_multisample_state_create_info.pSampleMask = NULL;
-					pipeline_multisample_state_create_info.alphaToCoverageEnable = VK_FALSE;
-					pipeline_multisample_state_create_info.alphaToOneEnable = VK_FALSE;
-
-					VkPipelineColorBlendAttachmentState pipeline_color_blend_attachment_state;
-					pipeline_color_blend_attachment_state.blendEnable = VK_TRUE;
-					pipeline_color_blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-					pipeline_color_blend_attachment_state.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-					pipeline_color_blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
-					pipeline_color_blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-					pipeline_color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-					pipeline_color_blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
-					pipeline_color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-					VkPipelineColorBlendStateCreateInfo pipeline_color_blend_state_create_info;
-					pipeline_color_blend_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-					pipeline_color_blend_state_create_info.pNext = NULL;
-					pipeline_color_blend_state_create_info.flags = 0;
-					pipeline_color_blend_state_create_info.logicOpEnable = VK_FALSE;
-					pipeline_color_blend_state_create_info.logicOp = VK_LOGIC_OP_NO_OP;
-					pipeline_color_blend_state_create_info.attachmentCount = 1;
-					pipeline_color_blend_state_create_info.pAttachments = &pipeline_color_blend_attachment_state;
-					pipeline_color_blend_state_create_info.blendConstants[0] = 0.0f;
-					pipeline_color_blend_state_create_info.blendConstants[1] = 0.0f;
-					pipeline_color_blend_state_create_info.blendConstants[2] = 0.0f;
-					pipeline_color_blend_state_create_info.blendConstants[3] = 0.0f;
-
-					VkPipelineLayoutCreateInfo pipeline_layout_create_info;
-					pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-					pipeline_layout_create_info.pNext = NULL;
-					pipeline_layout_create_info.flags = 0;
-					pipeline_layout_create_info.setLayoutCount = 0;
-					pipeline_layout_create_info.pSetLayouts = NULL;
-					pipeline_layout_create_info.pushConstantRangeCount = 0;
-					pipeline_layout_create_info.pPushConstantRanges = NULL;
-
-					VkResult result = vkCreatePipelineLayout(api_data->device, &pipeline_layout_create_info, NULL, &api_data->pipeline_layout);
-					MTRX_VULKAN_ASSERT("vkCreatePipelineLayout", result, renderer);
-
-					VkAttachmentDescription attachment_description;
-					attachment_description.flags = 0;
-					attachment_description.format = api_data->format_used;
-					attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
-					attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-					attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-					attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-					attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-					attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-					attachment_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-					VkAttachmentReference attachment_refference;
-					attachment_refference.attachment = 0;
-					attachment_refference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-					VkSubpassDescription subpass_description;
-					subpass_description.flags = 0;
-					subpass_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-					subpass_description.inputAttachmentCount = 0;
-					subpass_description.pInputAttachments = NULL;
-					subpass_description.colorAttachmentCount = 1;
-					subpass_description.pColorAttachments = &attachment_refference;
-					subpass_description.pResolveAttachments = NULL;
-					subpass_description.pDepthStencilAttachment = NULL;
-					subpass_description.preserveAttachmentCount = 0;
-					subpass_description.pPreserveAttachments = NULL;
-
-					VkSubpassDependency subpass_dependency;
-					subpass_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-					subpass_dependency.dstSubpass = 0;
-					subpass_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-					subpass_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-					subpass_dependency.srcAccessMask = 0;
-					subpass_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-					subpass_dependency.dependencyFlags = 0;
-
-					VkRenderPassCreateInfo render_pass_create_info;
-					render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-					render_pass_create_info.pNext = NULL;
-					render_pass_create_info.flags = 0;
-					render_pass_create_info.attachmentCount = 1;
-					render_pass_create_info.pAttachments = &attachment_description;
-					render_pass_create_info.subpassCount = 1;
-					render_pass_create_info.pSubpasses = &subpass_description;
-					render_pass_create_info.dependencyCount = 1;
-					render_pass_create_info.pDependencies = &subpass_dependency;
-
-					result = vkCreateRenderPass(api_data->device, &render_pass_create_info, NULL, &api_data->renderer_pass);
-					MTRX_VULKAN_ASSERT("vkCreateRenderPass", result, renderer);
-
-					VkGraphicsPipelineCreateInfo graphics_pipeline_create_info;
-					graphics_pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-					graphics_pipeline_create_info.pNext = NULL;
-					graphics_pipeline_create_info.flags = 0;
-					graphics_pipeline_create_info.stageCount = matrix_vector_capacity(pipeline_shader_stage_create_info_vec);
-					graphics_pipeline_create_info.pStages = &MTRX_VECTOR_DATA_AS(VkPipelineShaderStageCreateInfo, pipeline_shader_stage_create_info_vec);
-					graphics_pipeline_create_info.pVertexInputState = &pipeline_vertex_input_state_create_info;
-					graphics_pipeline_create_info.pInputAssemblyState = &pipelien_input_assembly_state_create_info;
-					graphics_pipeline_create_info.pTessellationState = NULL;
-					graphics_pipeline_create_info.pViewportState = &pipeline_viewport_state_create_info;
-					graphics_pipeline_create_info.pRasterizationState = &pipeline_rasterisation_state_create_info;
-					graphics_pipeline_create_info.pMultisampleState = &pipeline_multisample_state_create_info;
-					graphics_pipeline_create_info.pDepthStencilState = NULL;
-					graphics_pipeline_create_info.pColorBlendState = &pipeline_color_blend_state_create_info;
-					graphics_pipeline_create_info.pDynamicState = NULL;
-					graphics_pipeline_create_info.layout = api_data->pipeline_layout;
-					graphics_pipeline_create_info.renderPass = api_data->renderer_pass;
-					graphics_pipeline_create_info.subpass = 0;
-					graphics_pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
-					graphics_pipeline_create_info.basePipelineIndex = -1;
-
-					result = vkCreateGraphicsPipelines(api_data->device, VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, NULL, &api_data->pipeline);
-					MTRX_VULKAN_ASSERT("vkCreateGraphicsPipelines", result, renderer);
-
-					matrix_vector_destruct(&pipeline_shader_stage_create_info_vec);
+				if (NULL == renderer->window)
+				{
+					MTRX_ERROR_UNEXPECTED_NULL;
 				}
 				else
 				{
-					MTRX_CORE_LOG("renderer: could not create pipeline -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
+					if (matrix_window_opened_is(renderer->window))
+					{
+						VkViewport viewport;
+						viewport.x = 0.0f;
+						viewport.y = 0.0f;
+						viewport.width = matrix_window_width_get(renderer->window);
+						viewport.height = matrix_window_height_get(renderer->window);
+						viewport.minDepth = 0.0f;
+						viewport.maxDepth = 1.0f;
+
+						VkRect2D scissor;
+						scissor.offset.x = 0;
+						scissor.offset.y = 0;
+						scissor.extent.width = matrix_window_width_get(renderer->window);
+						scissor.extent.height = matrix_window_height_get(renderer->window);
+
+						VkPipelineViewportStateCreateInfo pipeline_viewport_state_create_info;
+						pipeline_viewport_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+						pipeline_viewport_state_create_info.pNext = NULL;
+						pipeline_viewport_state_create_info.flags = 0;
+						pipeline_viewport_state_create_info.viewportCount = 1;
+						pipeline_viewport_state_create_info.pViewports = &viewport;
+						pipeline_viewport_state_create_info.scissorCount = 1;
+						pipeline_viewport_state_create_info.pScissors = &scissor;
+
+						VkPipelineRasterizationStateCreateInfo pipeline_rasterisation_state_create_info;
+						pipeline_rasterisation_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+						pipeline_rasterisation_state_create_info.pNext = NULL;
+						pipeline_rasterisation_state_create_info.flags = 0;
+						pipeline_rasterisation_state_create_info.depthClampEnable = VK_FALSE;
+						pipeline_rasterisation_state_create_info.rasterizerDiscardEnable = VK_FALSE;
+						pipeline_rasterisation_state_create_info.polygonMode = VK_POLYGON_MODE_FILL;
+						pipeline_rasterisation_state_create_info.cullMode = VK_CULL_MODE_BACK_BIT;
+						pipeline_rasterisation_state_create_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+						pipeline_rasterisation_state_create_info.depthBiasEnable = VK_FALSE;
+						pipeline_rasterisation_state_create_info.depthBiasConstantFactor = 0.0f;
+						pipeline_rasterisation_state_create_info.depthBiasClamp = 0.0f;
+						pipeline_rasterisation_state_create_info.depthBiasSlopeFactor = 0.0f;
+						pipeline_rasterisation_state_create_info.lineWidth = 1.0f;
+
+						VkPipelineMultisampleStateCreateInfo pipeline_multisample_state_create_info;
+						pipeline_multisample_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+						pipeline_multisample_state_create_info.pNext = NULL;
+						pipeline_multisample_state_create_info.flags = 0;
+						pipeline_multisample_state_create_info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+						pipeline_multisample_state_create_info.sampleShadingEnable = VK_FALSE;
+						pipeline_multisample_state_create_info.minSampleShading = 1.0f;
+						pipeline_multisample_state_create_info.pSampleMask = NULL;
+						pipeline_multisample_state_create_info.alphaToCoverageEnable = VK_FALSE;
+						pipeline_multisample_state_create_info.alphaToOneEnable = VK_FALSE;
+
+						VkPipelineColorBlendAttachmentState pipeline_color_blend_attachment_state;
+						pipeline_color_blend_attachment_state.blendEnable = VK_TRUE;
+						pipeline_color_blend_attachment_state.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+						pipeline_color_blend_attachment_state.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+						pipeline_color_blend_attachment_state.colorBlendOp = VK_BLEND_OP_ADD;
+						pipeline_color_blend_attachment_state.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+						pipeline_color_blend_attachment_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+						pipeline_color_blend_attachment_state.alphaBlendOp = VK_BLEND_OP_ADD;
+						pipeline_color_blend_attachment_state.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+						VkPipelineColorBlendStateCreateInfo pipeline_color_blend_state_create_info;
+						pipeline_color_blend_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+						pipeline_color_blend_state_create_info.pNext = NULL;
+						pipeline_color_blend_state_create_info.flags = 0;
+						pipeline_color_blend_state_create_info.logicOpEnable = VK_FALSE;
+						pipeline_color_blend_state_create_info.logicOp = VK_LOGIC_OP_NO_OP;
+						pipeline_color_blend_state_create_info.attachmentCount = 1;
+						pipeline_color_blend_state_create_info.pAttachments = &pipeline_color_blend_attachment_state;
+						pipeline_color_blend_state_create_info.blendConstants[0] = 0.0f;
+						pipeline_color_blend_state_create_info.blendConstants[1] = 0.0f;
+						pipeline_color_blend_state_create_info.blendConstants[2] = 0.0f;
+						pipeline_color_blend_state_create_info.blendConstants[3] = 0.0f;
+
+						VkDynamicState dynamic_state_all[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+
+						VkPipelineDynamicStateCreateInfo pipeline_dynamic_state_create_info;
+						pipeline_dynamic_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+						pipeline_dynamic_state_create_info.pNext = NULL;
+						pipeline_dynamic_state_create_info.flags = 0;
+						pipeline_dynamic_state_create_info.dynamicStateCount = 2;
+						pipeline_dynamic_state_create_info.pDynamicStates = dynamic_state_all;
+
+						VkPipelineLayoutCreateInfo pipeline_layout_create_info;
+						pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+						pipeline_layout_create_info.pNext = NULL;
+						pipeline_layout_create_info.flags = 0;
+						pipeline_layout_create_info.setLayoutCount = 0;
+						pipeline_layout_create_info.pSetLayouts = NULL;
+						pipeline_layout_create_info.pushConstantRangeCount = 0;
+						pipeline_layout_create_info.pPushConstantRanges = NULL;
+
+						VkResult result = vkCreatePipelineLayout(api_data->device, &pipeline_layout_create_info, NULL, &api_data->pipeline_layout);
+						MTRX_VULKAN_ASSERT("vkCreatePipelineLayout", result, renderer);
+
+						VkAttachmentDescription attachment_description;
+						attachment_description.flags = 0;
+						attachment_description.format = api_data->format_used;
+						attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
+						attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+						attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+						attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+						attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+						attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+						attachment_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+						VkAttachmentReference attachment_refference;
+						attachment_refference.attachment = 0;
+						attachment_refference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+						VkSubpassDescription subpass_description;
+						subpass_description.flags = 0;
+						subpass_description.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+						subpass_description.inputAttachmentCount = 0;
+						subpass_description.pInputAttachments = NULL;
+						subpass_description.colorAttachmentCount = 1;
+						subpass_description.pColorAttachments = &attachment_refference;
+						subpass_description.pResolveAttachments = NULL;
+						subpass_description.pDepthStencilAttachment = NULL;
+						subpass_description.preserveAttachmentCount = 0;
+						subpass_description.pPreserveAttachments = NULL;
+
+						VkSubpassDependency subpass_dependency;
+						subpass_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+						subpass_dependency.dstSubpass = 0;
+						subpass_dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+						subpass_dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+						subpass_dependency.srcAccessMask = 0;
+						subpass_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+						subpass_dependency.dependencyFlags = 0;
+
+						VkRenderPassCreateInfo render_pass_create_info;
+						render_pass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+						render_pass_create_info.pNext = NULL;
+						render_pass_create_info.flags = 0;
+						render_pass_create_info.attachmentCount = 1;
+						render_pass_create_info.pAttachments = &attachment_description;
+						render_pass_create_info.subpassCount = 1;
+						render_pass_create_info.pSubpasses = &subpass_description;
+						render_pass_create_info.dependencyCount = 1;
+						render_pass_create_info.pDependencies = &subpass_dependency;
+
+						result = vkCreateRenderPass(api_data->device, &render_pass_create_info, NULL, &api_data->renderer_pass);
+						MTRX_VULKAN_ASSERT("vkCreateRenderPass", result, renderer);
+
+						VkGraphicsPipelineCreateInfo graphics_pipeline_create_info;
+						graphics_pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+						graphics_pipeline_create_info.pNext = NULL;
+						graphics_pipeline_create_info.flags = 0;
+						graphics_pipeline_create_info.stageCount = matrix_vector_capacity(renderer->shader_vec);
+						graphics_pipeline_create_info.pStages = pipeline_shader_stage_create_info_all;
+						graphics_pipeline_create_info.pVertexInputState = &pipeline_vertex_input_state_create_info;
+						graphics_pipeline_create_info.pInputAssemblyState = &pipelien_input_assembly_state_create_info;
+						graphics_pipeline_create_info.pTessellationState = NULL;
+						graphics_pipeline_create_info.pViewportState = &pipeline_viewport_state_create_info;
+						graphics_pipeline_create_info.pRasterizationState = &pipeline_rasterisation_state_create_info;
+						graphics_pipeline_create_info.pMultisampleState = &pipeline_multisample_state_create_info;
+						graphics_pipeline_create_info.pDepthStencilState = NULL;
+						graphics_pipeline_create_info.pColorBlendState = &pipeline_color_blend_state_create_info;
+						graphics_pipeline_create_info.pDynamicState = &pipeline_dynamic_state_create_info;
+						graphics_pipeline_create_info.layout = api_data->pipeline_layout;
+						graphics_pipeline_create_info.renderPass = api_data->renderer_pass;
+						graphics_pipeline_create_info.subpass = 0;
+						graphics_pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
+						graphics_pipeline_create_info.basePipelineIndex = -1;
+
+						result = vkCreateGraphicsPipelines(api_data->device, VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, NULL, &api_data->pipeline);
+						MTRX_VULKAN_ASSERT("vkCreateGraphicsPipelines", result, renderer);
+
+						free(pipeline_shader_stage_create_info_all);
+					}
+					else
+					{
+						MTRX_CORE_LOG("renderer: could not create pipeline -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
+					}
 				}
 			}
 		}
@@ -903,7 +954,7 @@ void matrix_vulkan_create_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Rend
 					api_data->frame_buffer_all = malloc(sizeof(*api_data->frame_buffer_all) * api_data->swapchain_image_count);
 					if (NULL == api_data->frame_buffer_all)
 					{
-						MTRX_ERROR_UNEXPECTED_NULL;
+						MTRX_ERROR_MALLOC_FAILED;
 					}
 					else
 					{
@@ -922,16 +973,7 @@ void matrix_vulkan_create_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Rend
 							frame_buffer_create_info.pAttachments = &api_data->image_view_all[i];
 
 							VkResult result = vkCreateFramebuffer(api_data->device, &frame_buffer_create_info, NULL, &api_data->frame_buffer_all[i]);
-							int decimals = 1;
-							for (int w = i + 1; w >= 10; w /= 10)
-							{
-								decimals++;
-							}
-							char* message = NULL;
-							message = malloc(sizeof(*message) * (23 + decimals));
-							stbsp_sprintf(message, "vkCreateFramebuffer (%u)", i + 1);
-							MTRX_VULKAN_ASSERT(message, result, renderer);
-							free(message);
+							MTRX_VULKAN_ASSERT_I("vkCreateFramebuffer", result, i, renderer);
 						}
 					}
 				}
@@ -940,6 +982,34 @@ void matrix_vulkan_create_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Rend
 					MTRX_CORE_LOG("renderer: could not create framebuffer -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
 				}
 			}
+		}
+	}
+}
+
+void matrix_vulkan_create_command_pool(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
+{
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			MTRX_CORE_LOG("renderer: commandpool creation", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+
+			VkCommandPoolCreateInfo command_pool_create_info;
+			command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+			command_pool_create_info.pNext = NULL;
+			command_pool_create_info.flags = 0;
+			command_pool_create_info.queueFamilyIndex = 0; //@TODO
+
+			VkResult result = vkCreateCommandPool(api_data->device, &command_pool_create_info, NULL, &api_data->command_pool);
+			MTRX_VULKAN_ASSERT("vkCreateCommandPool", result, renderer);
 		}
 	}
 }
@@ -960,15 +1030,6 @@ void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Re
 		{
 			MTRX_CORE_LOG("renderer: commandbuffer creation", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 
-			VkCommandPoolCreateInfo command_pool_create_info;
-			command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-			command_pool_create_info.pNext = NULL;
-			command_pool_create_info.flags = 0;
-			command_pool_create_info.queueFamilyIndex = 0; //@TODO
-
-			VkResult result = vkCreateCommandPool(api_data->device, &command_pool_create_info, NULL, &api_data->command_pool);
-			MTRX_VULKAN_ASSERT("vkCreateCommandPool", result, renderer);
-
 			VkCommandBufferAllocateInfo command_buffer_allocate_info;
 			command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 			command_buffer_allocate_info.pNext = NULL;
@@ -980,81 +1041,112 @@ void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Re
 			api_data->command_buffer_all = malloc(sizeof(*api_data->command_buffer_all) * api_data->swapchain_image_count);
 			if (NULL == api_data->command_buffer_all)
 			{
-				MTRX_ERROR_UNEXPECTED_NULL;
+				MTRX_ERROR_MALLOC_FAILED;
 			}
 			else
 			{
-				result = vkAllocateCommandBuffers(api_data->device, &command_buffer_allocate_info, api_data->command_buffer_all);
+				VkResult result = vkAllocateCommandBuffers(api_data->device, &command_buffer_allocate_info, api_data->command_buffer_all);
 				MTRX_VULKAN_ASSERT("vkAllocateCommandBuffers", result, renderer);
+			}
+		}
+	}
+}
 
-				VkCommandBufferBeginInfo command_buffer_begin_info;
-				command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				command_buffer_begin_info.pNext = NULL;
-				command_buffer_begin_info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-				command_buffer_begin_info.pInheritanceInfo = NULL;
+void matrix_vulkan_record_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
+{
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			MTRX_CORE_LOG("renderer: commandbuffer recording", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 
-				for (uint32_t i = 0; i < api_data->swapchain_image_count; i++)
+			VkCommandBufferBeginInfo command_buffer_begin_info;
+			command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			command_buffer_begin_info.pNext = NULL;
+			command_buffer_begin_info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+			command_buffer_begin_info.pInheritanceInfo = NULL;
+
+			for (uint32_t i = 0; i < api_data->swapchain_image_count; i++)
+			{
+				VkResult result = vkBeginCommandBuffer(api_data->command_buffer_all[i], &command_buffer_begin_info);
+				MTRX_VULKAN_ASSERT_I("vkBeginCommandBuffer", result, i, renderer);
+
+				if (NULL == renderer->window)
 				{
-					result = vkBeginCommandBuffer(api_data->command_buffer_all[i], &command_buffer_begin_info);
-					int decimals = 1;
-					for (int w = i + 1; w >= 10; w /= 10)
+					MTRX_ERROR_UNEXPECTED_NULL;
+				}
+				else
+				{
+					if (matrix_window_opened_is(renderer->window))
 					{
-						decimals++;
-					}
-					char* message = NULL;
-					message = malloc(sizeof(*message) * (24 + decimals));
-					stbsp_sprintf(message, "vkBeginCommandBuffer (%u)", i + 1);
-					MTRX_VULKAN_ASSERT(message, result, renderer);
-					free(message);
+						VkClearValue clear_value = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-					if (NULL == renderer->window)
-					{
-						MTRX_ERROR_UNEXPECTED_NULL;
-					}
-					else
-					{
-						if (matrix_window_opened_is(renderer->window))
+						VkRenderPassBeginInfo render_pass_begin_info;
+						render_pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+						render_pass_begin_info.pNext = NULL;
+						render_pass_begin_info.renderPass = api_data->renderer_pass;
+						render_pass_begin_info.framebuffer = api_data->frame_buffer_all[i];
+						render_pass_begin_info.renderArea.offset.x = 0;
+						render_pass_begin_info.renderArea.offset.y = 0;
+						render_pass_begin_info.renderArea.extent.width = matrix_window_width_get(renderer->window);
+						render_pass_begin_info.renderArea.extent.height = matrix_window_height_get(renderer->window);
+						render_pass_begin_info.clearValueCount = 1;
+						render_pass_begin_info.pClearValues = &clear_value;
+
+						vkCmdBeginRenderPass(api_data->command_buffer_all[i], &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+						vkCmdBindPipeline(api_data->command_buffer_all[i], VK_PIPELINE_BIND_POINT_GRAPHICS, api_data->pipeline);
+
+						if (NULL == renderer->window)
 						{
-							VkClearValue clear_value = {0.0f, 0.0f, 0.0f, 1.0f};
-
-							VkRenderPassBeginInfo render_pass_begin_info;
-							render_pass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-							render_pass_begin_info.pNext = NULL;
-							render_pass_begin_info.renderPass = api_data->renderer_pass;
-							render_pass_begin_info.framebuffer = api_data->frame_buffer_all[i];
-							render_pass_begin_info.renderArea.offset.x = 0;
-							render_pass_begin_info.renderArea.offset.y = 0;
-							render_pass_begin_info.renderArea.extent.width = matrix_window_width_get(renderer->window);
-							render_pass_begin_info.renderArea.extent.height = matrix_window_height_get(renderer->window);
-							render_pass_begin_info.clearValueCount = 1;
-							render_pass_begin_info.pClearValues = &clear_value;
-
-							vkCmdBeginRenderPass(api_data->command_buffer_all[i], &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-
-							vkCmdBindPipeline(api_data->command_buffer_all[i], VK_PIPELINE_BIND_POINT_GRAPHICS, api_data->pipeline);
-
-							vkCmdDraw(api_data->command_buffer_all[i], 3, 1, 0, 0);
-
-							vkCmdEndRenderPass(api_data->command_buffer_all[i]);
+							MTRX_ERROR_UNEXPECTED_NULL;
 						}
 						else
 						{
-							MTRX_CORE_LOG("renderer: could not create framebuffer -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
+							if (matrix_window_opened_is(renderer->window))
+							{
+								VkViewport viewport;
+								viewport.x = 0.0f;
+								viewport.y = 0.0f;
+								viewport.width = matrix_window_width_get(renderer->window);
+								viewport.height = matrix_window_height_get(renderer->window);
+								viewport.minDepth = 0.0f;
+								viewport.maxDepth = 1.0f;
+
+								vkCmdSetViewport(api_data->command_buffer_all[i], 0, 1, &viewport);
+
+								VkRect2D scissor;
+								scissor.offset.x = 0;
+								scissor.offset.y = 0;
+								scissor.extent.width = matrix_window_width_get(renderer->window);
+								scissor.extent.height = matrix_window_height_get(renderer->window);
+
+								vkCmdSetScissor(api_data->command_buffer_all[i], 0, 1, &scissor);
+
+								vkCmdDraw(api_data->command_buffer_all[i], 3, 1, 0, 0);
+								vkCmdEndRenderPass(api_data->command_buffer_all[i]);
+							}
+							else
+							{
+								MTRX_CORE_LOG("renderer: could not create pipeline -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
+							}
 						}
 					}
-
-					result = vkEndCommandBuffer(api_data->command_buffer_all[i]);
-					decimals = 1;
-					for (int w = i + 1; w >= 10; w /= 10)
+					else
 					{
-						decimals++;
+						MTRX_CORE_LOG("renderer: could not record commandbuffer -> window is closed", MATRIX_LOGGER_LEVEL_ERROR, renderer->logger);
 					}
-					message = NULL;
-					message = malloc(sizeof(*message) * (22 + decimals));
-					stbsp_sprintf(message, "vkEndCommandBuffer (%u)", i + 1);
-					MTRX_VULKAN_ASSERT(message, result, renderer);
-					free(message);
 				}
+
+				result = vkEndCommandBuffer(api_data->command_buffer_all[i]);
+				MTRX_VULKAN_ASSERT_I("vkEndCommandBuffer", result, i, renderer);
 			}
 		}
 	}
@@ -1107,7 +1199,7 @@ void matrix_vulkan_frame_draw(Matrix_Vulkan_Data* api_data, Matrix_Renderer* ren
 			uint32_t image_index = 0;
 
 			VkResult result = vkAcquireNextImageKHR(api_data->device, api_data->swapchain, INT64_MAX, api_data->semaphore_image_available, VK_NULL_HANDLE, &image_index);
-			MTRX_VULKAN_QASSERT("vkAcquireNextImageKHR", result, renderer);
+			MTRX_VULKAN_ASSERT_Q("vkAcquireNextImageKHR", result, renderer);
 
 			VkPipelineStageFlags wait_stage_mask[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
@@ -1123,7 +1215,7 @@ void matrix_vulkan_frame_draw(Matrix_Vulkan_Data* api_data, Matrix_Renderer* ren
 			submit_info.pSignalSemaphores = &api_data->semaphore_rendering_done;
 
 			result = vkQueueSubmit(api_data->queue, 1, &submit_info, VK_NULL_HANDLE);
-			MTRX_VULKAN_QASSERT("vkQueueSubmit", result, renderer);
+			MTRX_VULKAN_ASSERT_Q("vkQueueSubmit", result, renderer);
 
 			VkPresentInfoKHR present_info;
 			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -1136,7 +1228,7 @@ void matrix_vulkan_frame_draw(Matrix_Vulkan_Data* api_data, Matrix_Renderer* ren
 			present_info.pResults = NULL;
 
 			result = vkQueuePresentKHR(api_data->queue, &present_info);
-			MTRX_VULKAN_QASSERT("vkQueuePresentKHR", result, renderer);
+			MTRX_VULKAN_ASSERT_Q("vkQueuePresentKHR", result, renderer);
 		}
 	}
 }
@@ -1215,6 +1307,8 @@ void matrix_vulkan_destroy_swapchain(Matrix_Vulkan_Data* api_data, Matrix_Render
 		{
 			vkDestroySwapchainKHR(api_data->device, api_data->swapchain, NULL);
 
+			free(api_data->swapchain_image_all);
+
 			MTRX_CORE_LOG("renderer: swapchain destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 		}
 	}
@@ -1247,7 +1341,7 @@ void matrix_vulkan_destroy_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Rende
 
 				free(api_data->image_view_all);
 
-				MTRX_CORE_LOG("renderer: swapchain destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+				MTRX_CORE_LOG("renderer: imageview destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 			}
 		}
 	}
@@ -1342,6 +1436,27 @@ void matrix_vulkan_destroy_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Ren
 	}
 }
 
+void matrix_vulkan_destroy_command_pool(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
+{
+	if (NULL == renderer)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (NULL == api_data)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			vkDestroyCommandPool(api_data->device, api_data->command_pool, NULL);
+
+			MTRX_CORE_LOG("renderer: commandpool destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
+		}
+	}
+}
+
 void matrix_vulkan_destroy_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer)
 {
 	if (NULL == renderer)
@@ -1357,7 +1472,8 @@ void matrix_vulkan_destroy_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_R
 		else
 		{
 			vkFreeCommandBuffers(api_data->device, api_data->command_pool, api_data->swapchain_image_count, api_data->command_buffer_all);
-			vkDestroyCommandPool(api_data->device, api_data->command_pool, NULL);
+
+			free(api_data->command_buffer_all);
 
 			MTRX_CORE_LOG("renderer: commandbuffer destruction", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);
 		}
@@ -1427,27 +1543,27 @@ void matrix_vulkan_denumerate_physical_devices(Matrix_Vulkan_Data* api_data, Mat
 			}
 			else
 			{
-				if (NULL == api_data->physical_device_all_properties)
+				if (NULL == api_data->physical_device_all_properties_all)
 				{
 					MTRX_ERROR_UNEXPECTED_NULL;
 				}
 				else
 				{
-					if (NULL == api_data->physical_device_all_features)
+					if (NULL == api_data->physical_device_all_features_all)
 					{
 						MTRX_ERROR_UNEXPECTED_NULL;
 					}
 					else
 					{
-						if (NULL == api_data->physical_device_all_memory_properties)
+						if (NULL == api_data->physical_device_all_memory_properties_all)
 						{
 							MTRX_ERROR_UNEXPECTED_NULL;
 						}
 						else
 						{
-							free(api_data->physical_device_all_memory_properties);
-							free(api_data->physical_device_all_features);
-							free(api_data->physical_device_all_properties);
+							free(api_data->physical_device_all_memory_properties_all);
+							free(api_data->physical_device_all_features_all);
+							free(api_data->physical_device_all_properties_all);
 							free(api_data->physical_device_all);
 
 							MTRX_CORE_LOG("renderer: physical_device denumeration", MATRIX_LOGGER_LEVEL_TRACE, renderer->logger);

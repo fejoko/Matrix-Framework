@@ -11,6 +11,9 @@ void matrix_vulkan_update(Matrix_Renderer* const renderer);
 void matrix_vulkan_stop(Matrix_Renderer* const renderer);
 void matrix_vulkan_shutdown(Matrix_Renderer* const renderer);
 void matrix_vulkan_destruct(Matrix_Renderer* const renderer);
+void matrix_vulkan_onResize(Matrix_Renderer* const renderer);
+
+void matrix_vulkan_swapchain_recreate(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 
 //init renderer
 void matrix_vulkan_create_instance(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
@@ -24,7 +27,9 @@ void matrix_vulkan_create_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Render
 void matrix_vulkan_create_shader(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_create_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_create_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
+void matrix_vulkan_create_command_pool(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_create_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
+void matrix_vulkan_record_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_create_semaphore(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 
 //update renderer
@@ -37,6 +42,7 @@ void matrix_vulkan_destroy_imageviews(Matrix_Vulkan_Data* api_data, Matrix_Rende
 void matrix_vulkan_destroy_shaders(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_destroy_pipeline(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_destroy_frame_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
+void matrix_vulkan_destroy_command_pool(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_destroy_command_buffer(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 void matrix_vulkan_destroy_semaphore(Matrix_Vulkan_Data* api_data, Matrix_Renderer* renderer);
 

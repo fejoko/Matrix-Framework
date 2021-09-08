@@ -14,9 +14,9 @@ typedef struct Matrix_Vulkan_Data
 
 	uint32_t physical_device_count;
 	VkPhysicalDevice* physical_device_all;
-	VkPhysicalDeviceProperties* physical_device_all_properties;
-	VkPhysicalDeviceFeatures* physical_device_all_features;
-	VkPhysicalDeviceMemoryProperties* physical_device_all_memory_properties;
+	VkPhysicalDeviceProperties* physical_device_all_properties_all;
+	VkPhysicalDeviceFeatures* physical_device_all_features_all;
+	VkPhysicalDeviceMemoryProperties* physical_device_all_memory_properties_all;
 
 	uint32_t queue_family_count;
 	VkQueueFamilyProperties* queue_family_properties;

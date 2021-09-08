@@ -2,6 +2,7 @@
 
 #include "Matrix/Logger/logger_data.h"
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger.h"
+#include "Matrix/Window/INTERNAL/INTERNAL_window.h"
 #include "Matrix/Window/INTERNAL/INTERNAL_window_data.h"
 #include "Matrix/Window/INTERNAL/Glfw/INTERNAL_glfw_data.h"
 #include "Matrix/Window/INTERNAL/Glfw/INTERNAL_glfw_errors.h"
@@ -27,7 +28,7 @@ void matrix_glfw_construct(Matrix_Window* const window)
 	}
 }
 
-void matrix_glfw_init(Matrix_Window* const window)
+void matrix_glfw_init(Matrix_Window* window)
 {
 	if (NULL == window)
 	{
@@ -37,9 +38,7 @@ void matrix_glfw_init(Matrix_Window* const window)
 	{
 		if (GLFW_TRUE == glfwInit())
 		{
-			glfwInit();
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		}
 		else
 		{
@@ -57,6 +56,10 @@ void matrix_glfw_open(int width, int height, const char* title, Matrix_Window* c
 	else
 	{
 		((Matrix_Glfw_Data*)window->api_data)->glfw_window = glfwCreateWindow(width, height, title, NULL, NULL);
+
+		glfwSetWindowUserPointer(((Matrix_Glfw_Data*)window->api_data)->glfw_window, window);
+
+		glfwSetWindowSizeCallback(((Matrix_Glfw_Data*)window->api_data)->glfw_window, matrix_glfw_onResize);
 	}
 }
 
@@ -129,5 +132,26 @@ void* matrix_glfw_raw_get(Matrix_Window* const window)
 	else
 	{
 		return ((Matrix_Glfw_Data*)window->api_data)->glfw_window;
+	}
+}
+
+void matrix_glfw_onResize(GLFWwindow* glfw_window, int width_new, int height_new)
+{
+	if (NULL == glfw_window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		Matrix_Window* window = glfwGetWindowUserPointer(glfw_window);
+
+		if (NULL == window)
+		{
+			MTRX_ERROR_UNEXPECTED_NULL;
+		}
+		else
+		{
+			matrix_window_onResize(width_new, height_new, window);
+		}
 	}
 }

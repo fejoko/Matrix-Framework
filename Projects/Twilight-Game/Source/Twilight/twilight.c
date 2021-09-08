@@ -121,7 +121,7 @@ void twilight_state_default_on_unload(void** state_data, Matrix_Data* data)
 
 void twilight_state_default_on_enter(void** state_data, Matrix_Data* data)
 {
-	matrix_window_open(1920, 1080, "twilight", data->window);
+	matrix_window_open(320, 180, "twilight", data->window);
 	matrix_renderer_start(data->renderer);
 }
 

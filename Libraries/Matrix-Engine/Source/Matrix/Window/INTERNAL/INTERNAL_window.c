@@ -2,6 +2,7 @@
 
 #include "Matrix/Logger/INTERNAL/INTERNAL_logger.h"
 #include "Matrix/Logger/logger_data.h"
+#include "Matrix/Renderer/INTERNAL/INTERNAL_renderer.h"
 #include "Matrix/Window/window.h"
 #include "Matrix/Window/INTERNAL/INTERNAL_window_data.h"
 #include "Matrix/Window/INTERNAL/INTERNAL_window_errors.h"
@@ -37,6 +38,7 @@ Matrix_Window matrix_window_construct()
 	window.is_opened = false;
 	window.window_settings = matrix_window_settings_construct();
 	window.logger = NULL;
+	window.renderer = NULL;
 	window.width = 0;
 	window.height = 0;
 	window.title = "";
@@ -59,7 +61,7 @@ void matrix_window_destruct(Matrix_Window* const window)
 	}
 }
 
-void matrix_window_init(Matrix_Logger* const logger, Matrix_Window* const window)
+void matrix_window_init(Matrix_Logger* const logger, Matrix_Renderer* const renderer, Matrix_Window* const window)
 {
 	if (NULL == window)
 	{
@@ -68,6 +70,7 @@ void matrix_window_init(Matrix_Logger* const logger, Matrix_Window* const window
 	else
 	{
 		window->logger = logger;
+		window->renderer = renderer;
 
 		MTRX_WINDOW_GLFW_INIT(window);
 
@@ -144,6 +147,30 @@ void* matrix_window_raw_get(Matrix_Window* const window)
 		default:
 			MTRX_ERROR_WINDOW_API_OUTOFBOUND;
 			break;
+		}
+	}
+}
+
+void matrix_window_onResize(int width_new, int height_new, Matrix_Window* const window)
+{
+	if (NULL == window)
+	{
+		MTRX_ERROR_UNEXPECTED_NULL;
+	}
+	else
+	{
+		if (width_new > 0 && height_new > 0)
+		{
+			MTRX_CORE_LOG("window: resized", MATRIX_LOGGER_LEVEL_TRACE, window->logger);
+
+			window->width = width_new;
+			window->height = height_new;
+
+			matrix_renderer_onResize(window->renderer);
+		}
+		else
+		{
+			MTRX_CORE_LOG("window: could not resize window -> width and height have to be > 0", MATRIX_LOGGER_LEVEL_ERROR, window->logger);
 		}
 	}
 }

@@ -153,7 +153,7 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 					path = malloc(sizeof(*path) * len + 1);
 					if (NULL == path)
 					{
-						MTRX_ERROR_UNEXPECTED_NULL;
+						MTRX_ERROR_MALLOC_FAILED;
 					}
 					else
 					{
@@ -168,7 +168,7 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 							message = malloc(36 + strlen(path) + 1);
 							if (NULL == message)
 							{
-								MTRX_ERROR_UNEXPECTED_NULL;
+								MTRX_ERROR_MALLOC_FAILED;
 							}
 							else
 							{
@@ -182,7 +182,7 @@ void matrix_renderer_shader_load(const char* shader_path_rel, Matrix_Renderer_Sh
 							message = malloc(41 + strlen(path) + 1);
 							if (NULL == message)
 							{
-								MTRX_ERROR_UNEXPECTED_NULL;
+								MTRX_ERROR_MALLOC_FAILED;
 							}
 							else
 							{

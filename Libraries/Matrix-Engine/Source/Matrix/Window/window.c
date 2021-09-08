@@ -38,6 +38,8 @@ Matrix_Window_Settings matrix_window_settings_construct()
 {
 	Matrix_Window_Settings window_settings;
 	window_settings.window_api = MATRIX_WINDOW_API_NONE;
+	window_settings.window_width_min = 0;
+	window_settings.window_height_min = 0;
 
 	return window_settings;
 }
