@@ -1,2 +1,3 @@
+add_subdirectory(cglm)
 add_subdirectory(Glfw)
-add_subdirectory(Stb)
+add_subdirectory(stb)

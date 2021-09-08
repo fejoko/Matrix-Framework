@@ -1,3 +1,6 @@
 [submodule "Libraries/Matrix-Engine/Libraries/Glfw"]
 	path = Libraries/Matrix-Engine/Libraries/Glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "Libraries/Matrix-Engine/Libraries/cglm"]
+	path = Libraries/Matrix-Engine/Libraries/cglm
+	url = https://github.com/recp/cglm.git
